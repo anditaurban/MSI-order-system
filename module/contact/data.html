@@ -13,10 +13,7 @@
         </nav>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button
-          id="addButton"
-          class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded"
-        >
+        <button id="addButton" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">
           + Tambah Pelanggan
         </button>
       </div>
@@ -25,23 +22,37 @@
     <!-- Search Bar -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4 text-sm">
       <div class="flex items-center gap-2 w-full md:w-auto">
-        <input
-          type="text"
-          id="searchInput"
-          onkeyup="debounceSearch()"
-          placeholder="🔎 Cari..."
-          class="px-3 py-2 border rounded w-full md:w-96 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        />
+        <input type="text" id="searchInput" onkeyup="debounceSearch()" placeholder="🔎 Cari..."
+          class="px-3 py-2 border rounded w-full md:w-96 dark:bg-gray-800 dark:text-white dark:border-gray-600" />
+      </div>
+      <div class="relative">
+        <button id="dropdownExportButton" onclick="toggleDropdownButton('dropdownExportMenu')"
+          class="flex items-center justify-between w-52 px-3 py-2 border rounded hover:bg-gray-50">
+          <span>Export Data</span>
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <div id="dropdownExportMenu"
+          class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+          <button onclick="exportPDF()"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            Export PDF
+          </button>
+          <button onclick="exportExcel()"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            Export Excel
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Table -->
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm border dark:border-gray-700">
-        <thead
-          id="tableHeader"
-          class="hidden md:table-header-group bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-        >
+        <thead id="tableHeader"
+          class="hidden md:table-header-group bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
           <tr>
             <th class="px-4 py-2 border">ID</th>
             <th class="px-4 py-2 border">Nama</th>
@@ -63,18 +74,13 @@
       <p id="infoText" class="hidden md:block text-sm text-gray-600 dark:text-gray-400 text-left"></p>
 
       <!-- Pagination (desktop only) -->
-      <div
-        id="pagination"
-        class="hidden md:flex w-full justify-between items-center flex-wrap gap-2 text-sm"
-      ></div>
+      <div id="pagination" class="hidden md:flex w-full justify-between items-center flex-wrap gap-2 text-sm"></div>
 
       <!-- Page selector (mobile only) -->
       <div class="block md:hidden text-sm text-center mb-12">
         <label for="pageSelect" class="mr-2">Go to Page:</label>
-        <select
-          id="pageSelect"
-          class="px-2 py-1 border rounded dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        ></select>
+        <select id="pageSelect"
+          class="px-2 py-1 border rounded dark:bg-gray-800 dark:text-white dark:border-gray-600"></select>
       </div>
     </div>
   </section>

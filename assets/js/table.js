@@ -734,3 +734,11 @@ async function exportData() {
     });
   }
 }
+
+function toggleDropdownButton(menuId) {
+  document.querySelectorAll(".dropdown-menu").forEach((el) => {
+    if (el.id !== menuId) el.classList.add("hidden"); // Tutup semua dropdown lain
+  });
+  const menu = document.getElementById(menuId);
+  if (menu) menu.classList.toggle("hidden");
+}

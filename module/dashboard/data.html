@@ -1,0 +1,74 @@
+<div class="space-y-6">
+
+<div id="dashboardSummary" class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+  <div class="p-4 bg-white rounded-xl shadow text-center">
+    <h2 class="text-sm text-gray-500">Total Transaksi</h2>
+    <p id="totalTransactions" class="text-xl font-semibold text-blue-600">0</p>
+  </div>
+  <div class="p-4 bg-white rounded-xl shadow text-center">
+    <h2 class="text-sm text-gray-500">Total Paket Terjual</h2>
+    <p id="totalItemsSold" class="text-xl font-semibold text-green-600">0</p>
+  </div>
+  <div class="p-4 bg-white rounded-xl shadow text-center">
+    <h2 class="text-sm text-gray-500">Total Penjualan</h2>
+    <p id="totalSales" class="text-xl font-semibold text-amber-600">Rp 0</p>
+  </div>
+</div>
+      
+      
+      
+  
+    <!-- Grafik Sales -->
+<div class="bg-white dark:bg-gray-800 rounded shadow p-4">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Sales Overview (Last 7 Days)</h3>
+    <div class="flex space-x-2 mt-2 md:mt-0">
+      <!-- Chart Type Selector -->
+      <select id="chartTypeSelector" onchange="loadSalesGraph(currentPeriod)"
+              class="border text-sm px-3 py-1 rounded text-gray-700 dark:text-white dark:bg-gray-700 dark:border-gray-600">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+      </select>
+
+      <!-- Period Selector -->
+      <select onchange="loadSalesGraph(this.value)"
+              class="border text-sm px-3 py-1 rounded text-gray-700 dark:text-white dark:bg-gray-700 dark:border-gray-600">
+        <option value="weekly">Mingguan</option>
+        <option value="monthly">Bulanan</option>
+        <option value="yearly">Tahunan</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Chart Area -->
+  <div class="relative h-[400px]">
+    <canvas id="salesChart" class="w-full h-full"></canvas>
+
+    <!-- Spinner Overlay -->
+    <div id="chartLoader" class="absolute inset-0 bg-white/60 dark:bg-gray-800/60 flex justify-center items-center z-10 hidden">
+      <div class="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  </div>
+</div>
+
+  
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="mt-6">
+    <h2 class="text-lg font-semibold mb-2">Top Paket Terlaris</h2>
+    <div id="topProductsContainer" class="space-y-3">
+      <!-- Top product items akan dimuat di sini -->
+    </div>
+  </div>
+  <div class="mt-6">
+    <h2 class="text-lg font-semibold mb-2">Top Customer</h2>
+    <div id="topCustomersContainer" class="space-y-3">
+      <!-- Top customer items akan dimuat di sini -->
+    </div>
+  </div>
+
+      
+      
+      
+  
+  
+  </div>

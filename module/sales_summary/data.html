@@ -1,0 +1,76 @@
+
+
+    <!-- Baris 1 -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Grafik Penjualan Bulanan -->
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Grafik Penjualan Bulanan</h2>
+        <canvas id="chartBulanan"></canvas>
+      </div>
+
+      <!-- Penjualan per Pelanggan -->
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Penjualan per Pelanggan</h2>
+        <canvas id="chartPelanggan"></canvas>
+      </div>
+    </div>
+
+    <!-- Baris 2 -->
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Penjualan per Paket -->
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Penjualan per Paket</h2>
+        <canvas id="chartPaket"></canvas>
+      </div>
+
+      <!-- Penjualan per Tipe -->
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Penjualan per Tipe Penjualan</h2>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b font-semibold">
+              <th class="text-left py-2">Tipe Penjualan</th>
+              <th class="text-right py-2">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody id="tableTipe"></tbody>
+        </table>
+      </div>
+
+      <!-- Laporan Pengepakan -->
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Laporan Pengepakan per Packer</h2>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b font-semibold">
+              <th class="text-left py-2">Packer</th>
+              <th class="text-right py-2">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody id="tablePacker"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Baris 3 -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Persebaran Map Penjualan</h2>
+        <div class="text-center text-gray-400 py-8">🗺️ Map Placeholder</div>
+      </div>
+
+      <div class="bg-white shadow rounded-2xl p-4">
+        <h2 class="font-semibold mb-3">Laporan Pengiriman per Kurir</h2>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b font-semibold">
+              <th class="text-left py-2">Kurir</th>
+              <th class="text-right py-2">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody id="tableKurir"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+

@@ -1,0 +1,454 @@
+<div class="bg-white p-6">
+  <section class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 id="formTitle" class="text-2xl font-bold mb-1">PENGATURAN</h1>
+        <nav class="text-sm text-gray-500 flex items-center flex-wrap gap-1">
+          <span>Home</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span>Pengaturan</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex gap-2 border-b border-gray-300">
+      <button class="tab-link active-tab text-sm flex items-center gap-2 py-1 px-3 bg-blue-100 rounded-t-md text-blue-600 font-semibold" data-tab="unit" onclick="loadModuleContent('setting_unit')">
+        🧾 <span class="menu-text hidden md:inline">Unit</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="status" onclick="switchTab('status')">
+        📄 <span class="menu-text hidden md:inline">Status</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="peran" onclick="switchTab('peran')">
+        📌 <span class="menu-text hidden md:inline">Peran</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="level" onclick="switchTab('level')">
+        ⏱️ <span class="menu-text hidden md:inline">Level</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="akun" onclick="switchTab('akun')">
+        🏦 <span class="menu-text hidden md:inline">Akun Bank</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="kategori" onclick="switchTab('kategori')">
+        📦 <span class="menu-text hidden md:inline">Kategori Produk</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="penomoran" onclick="switchTab('penomoran')">
+        🔢 <span class="menu-text hidden md:inline">Penomoran</span>
+      </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="">
+
+      <!-- Reusable Template -->
+      <div class="setting-content" id="unit">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold">Unit</h2>
+          <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded">+ Tambah</button>
+        </div>
+        <table class="w-full border text-sm mt-4">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border w-[5%] px-3 py-2 text-left">ID</th>
+              <th class="border px-3 py-2 text-left">Unit</th>
+              <th class="border w-[5%] px-3 py-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-unit">
+              <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">1</td>
+          <td class="border px-4 py-2">Pcs</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">2</td>
+          <td class="border px-4 py-2">Pack</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">3</td>
+          <td class="border px-4 py-2">Gram</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">4</td>
+          <td class="border px-4 py-2">Unit</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">5</td>
+          <td class="border px-4 py-2">Lembar</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">6</td>
+          <td class="border px-4 py-2">Dus</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">7</td>
+          <td class="border px-4 py-2">Botol</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">8</td>
+          <td class="border px-4 py-2">Bal</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">9</td>
+          <td class="border px-4 py-2">Sachet</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">10</td>
+          <td class="border px-4 py-2">Lusin</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">11</td>
+          <td class="border px-4 py-2">Karton</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">12</td>
+          <td class="border px-4 py-2">Keping</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">13</td>
+          <td class="border px-4 py-2">Karung</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">14</td>
+          <td class="border px-4 py-2">Kaleng</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">15</td>
+          <td class="border px-4 py-2">Lot</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="setting-content hidden" id="status">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold">Status</h2>
+          <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded">+ Tambah</button>
+        </div>
+        <table class="w-full border text-sm mt-4">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border w-[5%] px-3 py-2 text-left">ID</th>
+              <th class="border px-3 py-2 text-left">Nama</th>
+              <th class="border w-[5%] px-3 py-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-status">
+              <tr class="hover:bg-gray-50">
+                <td class="border px-4 py-2">1</td>
+                <td class="border px-4 py-2">Active</td>
+                <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+            </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">2</td>
+          <td class="border px-4 py-2">Innactive</td>
+          <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+        </tr></tbody>
+        </table>
+      </div>
+
+<div class="setting-content hidden" id="peran">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold">Peran</h2>
+    <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded">+ Tambah</button>
+  </div>
+
+  <div class="overflow-x-auto mt-4">
+    <table class="w-full border text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-3 py-2 text-left">ID</th>
+          <th class="border px-3 py-2 text-left">Peran</th>
+          <th class="border px-3 py-2 text-center">📊<br>Dashboard</th>
+          <th class="border px-3 py-2 text-center">🧾<br>Faktur</th>
+          <th class="border px-3 py-2 text-center">💵<br>Penerimaan</th>
+          <th class="border px-3 py-2 text-center">📦<br>Pengepakan</th>
+          <th class="border px-3 py-2 text-center">🚚<br>Pengiriman</th>
+          <th class="border px-3 py-2 text-center">📋<br>Produk</th>
+          <th class="border px-3 py-2 text-center">🎁<br>Paket</th>
+          <th class="border px-3 py-2 text-center">🏷️<br>Kategori</th>
+          <th class="border px-3 py-2 text-center">👤<br>Pelanggan</th>
+          <th class="border px-3 py-2 text-center">📈<br>Laporan</th>
+          <th class="border px-3 py-2 text-center">🧑‍💼<br>Karyawan</th>
+          <th class="border px-3 py-2 text-center">👥<br>Pengguna</th>
+          <th class="border px-3 py-2 text-center">⚙️<br>Pengaturan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Super Admin -->
+        <tr>
+          <td class="border px-3 py-2">1</td>
+          <td class="border px-3 py-2">Super Admin</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+        </tr>
+
+        <!-- Sales -->
+        <tr>
+          <td class="border px-3 py-2">2</td>
+          <td class="border px-3 py-2">Sales</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+        </tr>
+
+        <!-- Finance -->
+        <tr>
+          <td class="border px-3 py-2">3</td>
+          <td class="border px-3 py-2">Finance</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+        </tr>
+
+        <!-- Viewer -->
+        <tr>
+          <td class="border px-3 py-2">4</td>
+          <td class="border px-3 py-2">Viewer</td>
+          <td class="border px-3 py-2 text-center">✅</td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+          <td class="border px-3 py-2 text-center"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+      <div class="setting-content hidden" id="level">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold">Level</h2>
+          <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded">+ Tambah</button>
+        </div>
+        <table class="w-full border text-sm mt-4">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border w-[5%] px-3 py-2 text-left">ID</th>
+              <th class="border px-3 py-2 text-left">Peran</th>
+              <th class="border px-3 py-2 text-left">Penjelasan</th>
+              <th class="border w-[5%] px-3 py-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-level">
+<tr>
+  <td class="border px-3 py-2">1</td>
+  <td class="border px-3 py-2">Business Owner</td>
+  <td class="border px-3 py-2">Memiliki kontrol penuh terhadap sistem, termasuk pengelolaan akun, data bisnis, dan pengaturan utama.</td>
+  <td class="border px-3 py-2 text-green-600">Active</td>
+</tr>
+<tr>
+  <td class="border px-3 py-2">2</td>
+  <td class="border px-3 py-2">Manager</td>
+  <td class="border px-3 py-2">Bertanggung jawab atas operasional harian dan memiliki akses ke laporan serta pengelolaan tim.</td>
+  <td class="border px-3 py-2 text-green-600">Active</td>
+</tr>
+<tr>
+  <td class="border px-3 py-2">3</td>
+  <td class="border px-3 py-2">Staff</td>
+  <td class="border px-3 py-2">Dapat mengakses dan memperbarui data yang relevan sesuai tugasnya, namun dengan batasan akses tertentu.</td>
+  <td class="border px-3 py-2 text-green-600">Active</td>
+</tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="setting-content hidden" id="akun">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold">Akun Bank</h2>
+          <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded">+ Tambah</button>
+        </div>
+        <table class="w-full border text-sm mt-4">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-3 py-2 text-left">Cost Center</th>
+              <th class="border px-3 py-2 text-left">Bank</th>
+              <th class="border px-3 py-2 text-left">No Rekening</th>
+              <th class="border px-3 py-2 text-left">Nama Akun</th>
+              <th class="border w-[5%] px-3 py-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-akun">
+              <tr>
+      <td class="border px-3 py-2">Kemitraan</td>
+      <td class="border px-3 py-2">BCA</td>
+      <td class="border px-3 py-2">7615599344</td>
+      <td class="border px-3 py-2">PT Master Kuliner Indonesia</td>
+      <td class="border px-3 py-2 text-green-600 font-medium">Aktif</td>
+    </tr>
+    <tr>
+      <td class="border px-3 py-2">Kemitraan</td>
+      <td class="border px-3 py-2">BSI</td>
+      <td class="border px-3 py-2">7215664486</td>
+      <td class="border px-3 py-2">PT Master Kuliner Indonesia</td>
+      <td class="border px-3 py-2 text-green-600 font-medium">Aktif</td>
+    </tr>
+    <tr>
+      <td class="border px-3 py-2">Kemitraan</td>
+      <td class="border px-3 py-2">BCA</td>
+      <td class="border px-3 py-2">3420131380</td>
+      <td class="border px-3 py-2">Citra Eka Purwita</td>
+      <td class="border px-3 py-2 text-green-600 font-medium">Aktif</td>
+    </tr>
+    <tr>
+      <td class="border px-3 py-2">Kemitraan</td>
+      <td class="border px-3 py-2">BRI</td>
+      <td class="border px-3 py-2">322001024950537</td>
+      <td class="border px-3 py-2">Citra Eka Purwita</td>
+      <td class="border px-3 py-2 text-green-600 font-medium">Aktif</td>
+    </tr>
+    <tr>
+      <td class="border px-3 py-2">Kemitraan</td>
+      <td class="border px-3 py-2">Mandiri</td>
+      <td class="border px-3 py-2">0060010112534</td>
+      <td class="border px-3 py-2">Citra Eka Purwita</td>
+      <td class="border px-3 py-2 text-green-600 font-medium">Aktif</td>
+    </tr>
+    <tr>
+      <td class="border px-3 py-2">Repeat Order</td>
+      <td class="border px-3 py-2">BSI</td>
+      <td class="border px-3 py-2">7308565127</td>
+      <td class="border px-3 py-2">PT Master Suplai Indonesia</td>
+      <td class="border px-3 py-2 text-green-600 font-medium">Aktif</td>
+    </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="setting-content hidden" id="kategori">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold">Kategori Produk</h2>
+          <button class="bg-blue-600 text-white text-sm px-4 py-2 rounded">+ Tambah</button>
+        </div>
+        <table class="w-full border text-sm mt-4">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border w-[5%] px-3 py-2 text-left">ID</th>
+              <th class="border px-3 py-2 text-left">Kategori</th>
+              <th class="border w-[5%] px-3 py-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-kategori">
+              <tr>
+      <td class="border px-4 py-2">1</td>
+      <td class="border px-4 py-2">Kemitraan</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">2</td>
+      <td class="border px-4 py-2">Bahan Baku</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">3</td>
+      <td class="border px-4 py-2">Kemasan</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">4</td>
+      <td class="border px-4 py-2">Booth</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">5</td>
+      <td class="border px-4 py-2">Peralatan</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">6</td>
+      <td class="border px-4 py-2">Barang Jadi</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">7</td>
+      <td class="border px-4 py-2">Umum</td>
+      <td class="border px-4 py-2 text-red-500 font-medium">Inactive</td>
+    </tr>
+    <tr>
+      <td class="border px-4 py-2">8</td>
+      <td class="border px-4 py-2">Repeat Order</td>
+      <td class="border px-4 py-2 text-green-600 font-medium">Active</td>
+    </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="setting-content hidden" id="penomoran">
+        <h2 class="text-xl font-bold mb-4">Format Penomoran</h2>
+        <table class="w-full border text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-3 py-2 text-left">Tipe</th>
+              <th class="border px-3 py-2 text-left">Format</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="border px-3 py-2">User</td><td class="border px-3 py-2">USR-{YYYY}-{0001}</td></tr>
+            <tr><td class="border px-3 py-2">Invoice</td><td class="border px-3 py-2">INV-{YYYYMM}-{0001}</td></tr>
+            <tr><td class="border px-3 py-2">Receipt</td><td class="border px-3 py-2">RCT-{YYYYMM}-{0001}</td></tr>
+            <tr><td class="border px-3 py-2">Packaging</td><td class="border px-3 py-2">PKG-{YYYY}-{0001}</td></tr>
+            <tr><td class="border px-3 py-2">Shipment</td><td class="border px-3 py-2">SHP-{YYYY}-{0001}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+</div>

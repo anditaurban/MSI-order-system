@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Produk Bundling</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: auto;
+    }
+
+    .print-page {
+      width: 210mm;
+      height: auto;
+      min-height: 297mm;
+      padding: 20mm 25mm;
+      box-sizing: border-box;
+      position: relative;
+      page-break-after: always;
+    }
+  </style>
+</head>
+<body class="bg-white text-black font-sans text-sm">
+  <div id="combinedContainer"></div>
+
+  <script>
+    const script = document.createElement('script');
+    script.src = `./assets/js/api.js?v=${new Date().getTime()}`;
+    document.body.appendChild(script);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const ids = (urlParams.get('ids') || '').split(',');
+    const isDownload = urlParams.get('mode') === 'download';
+    const container = document.getElementById('combinedContainer');
+
+    async function loadBundlingDetail(id) {
+      const res = await fetch(`${baseUrl}/detail/product_bundling/${id}`, {
+        headers: { Authorization: `Bearer ${API_TOKEN}` }
+      });
+      const data = await res.json();
+      return data?.detail;
+    }
+
+    async function loadAllBundlings() {
+      for (const id of ids) {
+        try {
+          const detail = await loadBundlingDetail(id);
+          if (!detail) continue;
+
+const section = document.createElement('section');
+section.className = 'print-page';
+
+const totalCogs = detail.item_detail?.reduce((total, item) => {
+  return total + (Number(item.cogs || 0) * Number(item.qty || 0));
+}, 0);
+
+const totalWeightGram = detail.item_detail?.reduce((total, item) => {
+  return total + (Number(item.weight || 0) * Number(item.qty || 0));
+}, 0);
+
+// Konversi ke kg dan roundup
+const totalWeightKg = Math.ceil(totalWeightGram / 1000);
+
+section.innerHTML = `
+  <img src="assets/img/cropped-Logo-MKI.webp" alt="Logo MKI" class="absolute top-[20mm] left-[25mm] h-10" />
+  <h2 class="text-center text-xl font-bold">DETAIL PRODUK PAKET </h2>
+  <h4 class="text-center text-base font-medium mt-1">${detail.product || '-'}</h4>
+
+  <div class="mt-6 grid md:grid-cols-1 gap-6 w-full">
+    <div class="grid gap-2">
+      <div class="grid grid-cols-3">
+        <div class="font-medium text-sm">Nama Paket</div>
+        <div class="col-span-2 text-sm">: ${detail.product || '-'}</div>
+      </div>
+      <div class="grid grid-cols-3">
+        <div class="font-medium text-sm">Deskripsi</div>
+        <div class="col-span-2 text-sm">: ${detail.description || '-'}</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="w-full border border-black mt-6 text-sm">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border border-black px-2 py-1 text-left">Nama Produk</th>
+        <th class="border border-black px-2 py-1 w-[5%] text-right">Kts</th>
+        <th class="border border-black px-2 py-1 w-[10%] text-left">Unit</th>
+        <th class="border border-black px-2 py-1 w-[10%] text-left">Berat</th>
+        <th class="border border-black px-2 py-1 w-[15%] text-right">Harga Beli</th>
+        <th class="border border-black px-2 py-1 w-[15%] text-right">Jumlah</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${detail.item_detail?.map((item, i) => {
+        const cogs = Number(item.cogs || 0);
+        const qty = Number(item.qty || 0);
+        const subtotal = cogs * qty;
+        return `
+          <tr>
+            <td class="border border-black px-2 py-1">${item.item_name}</td>
+            <td class="border border-black px-2 py-1 text-right">${qty}</td>
+            <td class="border border-black px-2 py-1">${item.unit || '-'}</td>
+            <td class="border border-black px-2 py-1 text-right">${item.weight.toLocaleString('id-ID')}</td>
+            <td class="border border-black px-2 py-1 text-right">Rp ${cogs.toLocaleString('id-ID')}</td>
+            <td class="border border-black px-2 py-1 text-right">Rp ${subtotal.toLocaleString('id-ID')}</td>
+          </tr>
+        `;
+      }).join('')}
+      <tr>
+        <td colspan="4" class="border border-black px-2 py-1 text-right font-semibold">Total Harga Beli</td>
+        <td colspan="2" class="border border-black px-2 py-1 text-right font-semibold">Rp ${Number(totalCogs || 0).toLocaleString('id-ID')}</td>
+      </tr>
+      <tr>
+        <td colspan="4" colspan="6" class="border border-black px-2 py-1 text-right font-semibold">Total Harga Jual</td>
+        <td colspan="2" class="border border-black px-2 py-1 text-right font-semibold">Rp ${Number(detail.sale_price  || 0).toLocaleString('id-ID')}</td>
+      </tr>
+      
+      <tr>
+        <td colspan="4" class="border border-black px-2 py-1 text-right font-semibold">Total Berat (gram)</td>
+        <td colspan="2" class="border border-black px-2 py-1 text-right font-semibold">${Number(totalWeightGram  || 0).toLocaleString('id-ID')} gram</td>
+      </tr>
+      
+      <tr>
+        <td colspan="4" class="border border-black px-2 py-1 text-right font-semibold">Total Berat (gram)</td>
+        <td colspan="2" class="border border-black px-2 py-1 text-right font-semibold">${Number(totalWeightKg  || 0).toLocaleString('id-ID')} kG</td>
+      </tr>
+
+    </tbody>
+  </table>
+`;
+
+container.appendChild(section);
+
+
+
+        } catch (err) {
+          console.error(`❌ Gagal ambil bundling ${id}`, err);
+        }
+      }
+
+      if (isDownload) {
+        setTimeout(() => {
+          html2pdf()
+            .set({
+              margin: 0,
+              filename: `produk-bundling.pdf`,
+              image: { type: 'jpeg', quality: 1 },
+              html2canvas: { scale: 2 },
+              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            })
+            .from(container)
+            .save();
+        }, 800);
+      }
+    }
+
+    window.onload = loadAllBundlings;
+  </script>
+</body>
+</html>

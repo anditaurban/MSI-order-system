@@ -42,7 +42,7 @@ const scriptsToLoad = [
 
 // if (!owner_id || !user_id || !level || !nama) {
   if (!owner_id || !user_id || !level|| !username) {
-    window.location.href = 'login'; 
+    window.location.href = 'login.html'; 
 }
 
 

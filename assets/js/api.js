@@ -1,8 +1,7 @@
 const isLocalhost = [
   'localhost',
   '127.0.0.1',
-  'mki.jagoinovasi.cloud',
-  'anditaurban.github.io'
+  'msi-order-system.vercel.app'
 ].includes(window.location.hostname);
 
 const mode = isLocalhost ? 'development' : 'production';

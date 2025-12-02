@@ -1,0 +1,140 @@
+  <!-- Container Utama -->
+  <div class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">📦 Inventory Summary</h1>
+      <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+        <select class="border rounded-lg px-3 py-2 text-sm">
+          <option>Semua Gudang</option>
+          <option>Gudang Utama</option>
+          <option>Cabang A</option>
+          <option>Cabang B</option>
+        </select>
+        <select class="border rounded-lg px-3 py-2 text-sm">
+          <option>Semua Kategori</option>
+          <option>Bahan Baku</option>
+          <option>Produk Jadi</option>
+          <option>Peralatan</option>
+        </select>
+        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Apply</button>
+      </div>
+    </div>
+    
+<!-- Development Notice -->
+<div class="mt-6 bg-yellow-50 border border-yellow-300 rounded-2xl p-4 flex items-start gap-3">
+  <div class="flex-shrink-0">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 9v2m0 4v2m0 4h.01M12 5v2m0 4v2m0 4h.01M12 9v2m0 4v2" />
+    </svg>
+  </div>
+  <div>
+    <h4 class="font-semibold text-yellow-700">Informasi Pengembangan</h4>
+    <p class="text-yellow-800 text-sm mt-1">
+      Modul <span class="font-semibold">Inventory Summary</span> ini merupakan versi awal dari sistem analisa stok.
+      Fitur akan dikembangkan lebih lanjut pada tahap pembuatan aplikasi <span class="font-semibold">Stock Management</span>,
+      termasuk integrasi <em>real-time stock movement</em>, notifikasi restock otomatis, dan laporan aset inventori.
+    </p>
+  </div>
+</div>
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Total SKU</p>
+        <h2 class="text-xl font-bold text-indigo-600">248</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Stok Masuk Bulan Ini</p>
+        <h2 class="text-xl font-bold text-green-600">12.540</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Stok Keluar Bulan Ini</p>
+        <h2 class="text-xl font-bold text-red-500">10.120</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Nilai Persediaan</p>
+        <h2 class="text-xl font-bold text-blue-600">Rp 87.450.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Stok Rendah</p>
+        <h2 class="text-xl font-bold text-orange-500">18</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Nilai Barang Rusak</p>
+        <h2 class="text-xl font-bold text-red-400">Rp 1.200.000</h2>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <!-- Line Chart -->
+      <div class="bg-white rounded-2xl shadow p-4 lg:col-span-2">
+        <h3 class="font-semibold mb-2 text-gray-700">Stok In & Out Trend</h3>
+        <canvas id="inventoryTrendChart" height="120"></canvas>
+      </div>
+      <!-- Pie Chart -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold mb-2 text-gray-700">Komposisi Stok per Kategori</h3>
+        <canvas id="stockCategoryChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- Inventory Table -->
+    <div class="bg-white rounded-2xl shadow p-4 mb-6 overflow-x-auto">
+      <h3 class="font-semibold mb-4 text-gray-700">Daftar Stok Barang</h3>
+      <table class="min-w-full text-sm text-left">
+        <thead class="text-gray-600 border-b">
+          <tr>
+            <th class="py-2 px-3">#</th>
+            <th class="py-2 px-3">Nama Barang</th>
+            <th class="py-2 px-3">Kategori</th>
+            <th class="py-2 px-3">Stok Saat Ini</th>
+            <th class="py-2 px-3">Satuan</th>
+            <th class="py-2 px-3">Nilai</th>
+            <th class="py-2 px-3">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">1</td>
+            <td class="py-2 px-3">Semen Portland 50kg</td>
+            <td class="py-2 px-3">Bahan Baku</td>
+            <td class="py-2 px-3">240</td>
+            <td class="py-2 px-3">sak</td>
+            <td class="py-2 px-3">Rp 12.000.000</td>
+            <td class="py-2 px-3"><span class="text-green-600 font-semibold">Aman</span></td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">2</td>
+            <td class="py-2 px-3">Baut M6</td>
+            <td class="py-2 px-3">Peralatan</td>
+            <td class="py-2 px-3">8</td>
+            <td class="py-2 px-3">pack</td>
+            <td class="py-2 px-3">Rp 160.000</td>
+            <td class="py-2 px-3"><span class="text-orange-500 font-semibold">Rendah</span></td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">3</td>
+            <td class="py-2 px-3">Cat Tembok Putih 1L</td>
+            <td class="py-2 px-3">Produk Jadi</td>
+            <td class="py-2 px-3">120</td>
+            <td class="py-2 px-3">kaleng</td>
+            <td class="py-2 px-3">Rp 3.600.000</td>
+            <td class="py-2 px-3"><span class="text-green-600 font-semibold">Aman</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Insights -->
+    <div class="bg-white rounded-2xl shadow p-4">
+      <h3 class="font-semibold mb-3 text-gray-700">Insights & Recommendations</h3>
+      <ul class="list-disc pl-5 space-y-2 text-gray-600">
+        <li>Stok keluar meningkat <span class="font-semibold text-blue-600">+15%</span> dibanding bulan lalu.</li>
+        <li><span class="font-semibold">18 SKU</span> dalam status stok rendah — segera lakukan restock.</li>
+        <li>Kategori <span class="font-semibold">Bahan Baku</span> memiliki nilai stok tertinggi (45% total).</li>
+      </ul>
+    </div>
+
+  </div>

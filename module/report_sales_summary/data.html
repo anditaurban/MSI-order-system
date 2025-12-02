@@ -1,0 +1,103 @@
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">📊 Sales Summary</h1>
+      <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+        <input type="date" class="border rounded-lg px-3 py-2 text-sm">
+        <input type="date" class="border rounded-lg px-3 py-2 text-sm">
+        <select class="border rounded-lg px-3 py-2 text-sm">
+          <option>All Categories</option>
+          <option>Electronics</option>
+          <option>Clothing</option>
+        </select>
+        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Apply</button>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Total Sales</p>
+        <h2 class="text-xl font-bold text-blue-600">Rp 124.500.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Total Orders</p>
+        <h2 class="text-xl font-bold text-blue-600">1.248</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Avg. Order Value</p>
+        <h2 class="text-xl font-bold text-blue-600">Rp 99.800</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Total Profit</p>
+        <h2 class="text-xl font-bold text-green-600">Rp 36.200.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Pending Payment</p>
+        <h2 class="text-xl font-bold text-orange-500">9</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Completed Orders</p>
+        <h2 class="text-xl font-bold text-green-500">1.100</h2>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white rounded-2xl shadow p-4 lg:col-span-2">
+        <h3 class="font-semibold mb-2 text-gray-700">Sales Trend</h3>
+        <canvas id="salesTrendChart" height="120"></canvas>
+      </div>
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold mb-2 text-gray-700">Order Status</h3>
+        <canvas id="orderStatusChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- Product Performance Table -->
+    <div class="bg-white rounded-2xl shadow p-4 mb-6 overflow-x-auto">
+      <h3 class="font-semibold mb-4 text-gray-700">Product Performance</h3>
+      <table class="min-w-full text-sm text-left">
+        <thead class="text-gray-600 border-b">
+          <tr>
+            <th class="py-2 px-3">#</th>
+            <th class="py-2 px-3">Product</th>
+            <th class="py-2 px-3">Units Sold</th>
+            <th class="py-2 px-3">Revenue</th>
+            <th class="py-2 px-3">Margin</th>
+            <th class="py-2 px-3">% of Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">1</td>
+            <td class="py-2 px-3">Product A</td>
+            <td class="py-2 px-3">124</td>
+            <td class="py-2 px-3">Rp 12.000.000</td>
+            <td class="py-2 px-3">35%</td>
+            <td class="py-2 px-3">23%</td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">2</td>
+            <td class="py-2 px-3">Product B</td>
+            <td class="py-2 px-3">98</td>
+            <td class="py-2 px-3">Rp 9.000.000</td>
+            <td class="py-2 px-3">28%</td>
+            <td class="py-2 px-3">17%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Insights -->
+    <div class="bg-white rounded-2xl shadow p-4">
+      <h3 class="font-semibold mb-3 text-gray-700">Insights & Recommendations</h3>
+      <ul class="list-disc pl-5 space-y-2 text-gray-600">
+        <li>Penjualan minggu ini naik <span class="font-semibold text-green-600">+12%</span> dibanding minggu lalu.</li>
+        <li><span class="font-semibold">Product A</span> berkontribusi paling tinggi terhadap total revenue (23%).</li>
+        <li>Pertimbangkan promo tambahan untuk <span class="font-semibold">produk dengan margin tinggi</span>.</li>
+      </ul>
+    </div>
+
+  </div>

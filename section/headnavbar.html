@@ -1,0 +1,57 @@
+  <!-- Top Navbar -->
+  <header class="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 shadow z-50 flex items-center justify-between px-4">
+    <div class="flex items-center gap-4">
+      <button id="desktopToggle" class="inline-flex md:inline-flex">←</button>
+        <div class="flex-shrink-0">
+          <img src="./assets/img/logo_msi.png" alt="Logo" class="h-10 w-auto">
+        </div>
+        
+    </div>
+    <div>
+        <a id="devmode" class="text-green-400 bg-gray-800 p-2 hidden"></a>
+    </div>
+
+
+
+    <div class="flex items-center gap-4">
+            <div id="apiStatus" class="relative">
+        <button id="apiIndicatorToggle" class="relative text-gray-700 hover:bg-gray-200 dark:text-white rounded p-2">
+          <span id="apiIndicator">🔄</span>
+        </button>
+        <div id="apiIndicatorDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+          <div class="p-4 text-sm text-gray-700 dark:text-white border-b border-gray-200 dark:border-gray-600"><span id="apiIndicatorText">Mengecek...</span></div>
+        </div>
+      </div>
+      <!-- <button id="toggleTheme" class="hidden md:block text-gray-700 hover:bg-gray-200 dark:text-white rounded p-2">🌓</button> -->
+      <!-- <div class="relative">
+        <button id="notificationToggle" class="relative text-gray-700 hover:bg-gray-200 dark:text-white rounded p-2">
+          🔔
+          <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1.5">3</span>
+        </button>
+        <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+          <div class="p-4 text-sm text-gray-700 dark:text-white border-b border-gray-200 dark:border-gray-600">Belum ada notifikasi baru.</div>
+          <div class="px-4 py-2">
+            <button id="markAsReadBtn" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Tandai telah dibaca</button>
+          </div>
+        </div>
+      </div> -->
+      <div class="relative hidden md:block">
+        <button id="userDropdownToggle" class="text-sm text-gray-600 dark:text-white transition-colors flex items-center gap-2">
+          <!-- <span id="userDisplay">Admin</span> ⏷ -->
+          <span id="nameUser">Admin</span> ⏷
+        </button>
+        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">My Account</a>
+          <a href="#" id="logout" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">Logout</a>
+        </div>
+      </div>
+      <div class="relative md:hidden">
+        <button id="mobileMenuToggle" class="text-xl">☰</button>
+        <div id="mobileMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
+          <button id="mobileToggleTheme" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">🌓 Dark Mode</button>
+          <button id="mobileUserToggle" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">👤 Akun</button>
+          <button id="logout"  class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>

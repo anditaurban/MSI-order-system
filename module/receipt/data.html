@@ -1,0 +1,162 @@
+<div class="bg-white p-4">
+  <section class="section">
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+      <div>
+        <h1 class="text-2xl font-bold mb-1">PENERIMAAN PENJUALAN</h1>
+        <nav class="text-gray-500 dark:text-gray-400 text-sm flex items-center flex-wrap gap-1">
+          <span>Beranda</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span>Penerimaan</span>
+        </nav>
+      </div>      
+      
+      
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-2">
+        <button
+         onclick="exportData()"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm flex items-center gap-2"
+        >
+          <span>Export</span>
+        </button>
+      </div>
+    </div>
+
+
+
+<!-- Search + Status Filter -->
+<div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4 text-sm">
+
+  <!-- Search (kiri) -->
+  <div class="w-full md:w-auto">
+    <input
+      type="text"
+      onkeyup="debounceSearch()"
+      id="searchInput"
+      placeholder="🔎 Cari..."
+      class="px-3 py-2 border rounded w-full md:w-96 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+    />
+  </div>
+  <!-- Filter (kanan) -->
+  <div class="flex flex-wrap items-center justify-end gap-2 w-full md:w-auto">
+
+<!-- Type Dropdown as Button -->
+<div class="relative">
+  <button id="dropdownBankButton" onclick="toggleBankDropdown()" 
+    class="flex items-center justify-between px-3 py-2 border rounded w-52 dark:bg-gray-800 dark:text-white dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+    <span id="dropdownBankLabel">Pilih Bank</span>
+    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+  <!-- Dropdown Menu -->
+  <div id="dropdownBankMenu" 
+    class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+    <!-- Isi bank akan dimasukkan lewat JS -->
+  </div>
+</div>
+
+
+<!-- Type Dropdown as Button -->
+<div class="relative">
+  <button id="dropdownFilterButton" onclick="toggleFilterDropdown()" 
+    class="flex items-center justify-between px-3 py-2 border rounded w-52 dark:bg-gray-800 dark:text-white dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+    <span id="dropdownFilterLabel">Filter Data</span>
+    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+<!-- Dropdown Menu -->
+<div id="dropdownFilterMenu" 
+  class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+  <button onclick="filterData('status=1')" 
+    class="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+    <span>Menunggu Validasi</span>
+  </button>
+
+  <button onclick="filterData('status=2')" 
+    class="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+    <span>Valid</span>
+  </button>
+
+  <button onclick="filterData('status=3')"
+    class="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+    <span>Tidak Valid</span>
+  </button>
+
+
+  <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+  <button onclick="filterData('type=1')" 
+    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Reguler</button>
+  <button onclick="filterData('type=2')" 
+    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">COD</button>
+  <button onclick="filterData('type=3')" 
+    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Marketplace</button>
+
+      <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+      <button onclick="filterData('')" 
+    class="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+    <span>Semua</span>
+  </button>
+
+
+</div>
+
+</div>
+</div>
+</div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm border dark:border-gray-700">
+        <thead
+          id="tableHeader"
+          class="hidden md:table-header-group bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+        >
+          <tr>
+            <th class="px-4 py-2 border">Tanggal</th>
+            <th class="px-4 py-2 border">No.Receipt</th>
+            <th class="px-4 py-2 border">No.Faktur</th>
+            <th class="px-4 py-2 border">Pelanggan</th>
+            <th class="px-4 py-2 w-[10%] border">Tipe</th>
+            <th class="px-4 py-2 border">Akun</th>
+            <th class="px-4 py-2 border">Jumlah</th>
+            <th class="px-4 py-2 border">PIC</th>
+            <th class="px-4 py-2 border">Status</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination & Info -->
+    <div class="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+      <!-- Info text (desktop only) -->
+      <p
+        id="infoText"
+        class="hidden md:block text-sm text-gray-600 dark:text-gray-400 text-left"
+      ></p>
+
+      <!-- Pagination (desktop only) -->
+      <div
+        id="pagination"
+        class="hidden md:flex w-full justify-between items-center flex-wrap gap-2 text-sm"
+      ></div>
+
+      <!-- Page select (mobile only) -->
+      <div class="block md:hidden text-sm text-center mb-12">
+        <label for="pageSelect" class="mr-2">Go to Page:</label>
+        <select
+          id="pageSelect"
+          class="px-2 py-1 border rounded dark:bg-gray-800 dark:text-white dark:border-gray-600"
+        ></select>
+      </div>
+    </div>
+  </section>
+</div>

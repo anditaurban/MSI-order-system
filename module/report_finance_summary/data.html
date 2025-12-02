@@ -1,0 +1,107 @@
+  <!-- Container Utama -->
+  <div class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">💰 Finance Summary</h1>
+      <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+        <input type="date" class="border rounded-lg px-3 py-2 text-sm">
+        <input type="date" class="border rounded-lg px-3 py-2 text-sm">
+        <select class="border rounded-lg px-3 py-2 text-sm">
+          <option>Semua Akun</option>
+          <option>Kas</option>
+          <option>Bank</option>
+          <option>E-Wallet</option>
+        </select>
+        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Apply</button>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Total Pemasukan</p>
+        <h2 class="text-xl font-bold text-green-600">Rp 245.800.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Total Pengeluaran</p>
+        <h2 class="text-xl font-bold text-red-500">Rp 172.400.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Laba Bersih</p>
+        <h2 class="text-xl font-bold text-blue-600">Rp 73.400.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Arus Kas Masuk</p>
+        <h2 class="text-xl font-bold text-green-500">Rp 180.000.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Arus Kas Keluar</p>
+        <h2 class="text-xl font-bold text-red-400">Rp 120.000.000</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-4 text-center">
+        <p class="text-sm text-gray-500">Saldo Akhir</p>
+        <h2 class="text-xl font-bold text-indigo-600">Rp 60.000.000</h2>
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <!-- Line Chart -->
+      <div class="bg-white rounded-2xl shadow p-4 lg:col-span-2">
+        <h3 class="font-semibold mb-2 text-gray-700">Cashflow Trend</h3>
+        <canvas id="cashflowChart" height="120"></canvas>
+      </div>
+      <!-- Pie Chart -->
+      <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold mb-2 text-gray-700">Expense Breakdown</h3>
+        <canvas id="expenseChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- Finance Table -->
+    <div class="bg-white rounded-2xl shadow p-4 mb-6 overflow-x-auto">
+      <h3 class="font-semibold mb-4 text-gray-700">Transaksi Keuangan</h3>
+      <table class="min-w-full text-sm text-left">
+        <thead class="text-gray-600 border-b">
+          <tr>
+            <th class="py-2 px-3">Tanggal</th>
+            <th class="py-2 px-3">Kategori</th>
+            <th class="py-2 px-3">Deskripsi</th>
+            <th class="py-2 px-3">Tipe</th>
+            <th class="py-2 px-3">Jumlah</th>
+            <th class="py-2 px-3">Saldo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">2025-10-01</td>
+            <td class="py-2 px-3">Penjualan</td>
+            <td class="py-2 px-3">Invoice #INV-1002</td>
+            <td class="py-2 px-3 text-green-600 font-semibold">Masuk</td>
+            <td class="py-2 px-3">Rp 12.000.000</td>
+            <td class="py-2 px-3">Rp 52.000.000</td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">2025-10-02</td>
+            <td class="py-2 px-3">Operasional</td>
+            <td class="py-2 px-3">Pembelian Bahan</td>
+            <td class="py-2 px-3 text-red-600 font-semibold">Keluar</td>
+            <td class="py-2 px-3">Rp 5.000.000</td>
+            <td class="py-2 px-3">Rp 47.000.000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Insights -->
+    <div class="bg-white rounded-2xl shadow p-4">
+      <h3 class="font-semibold mb-3 text-gray-700">Insights & Recommendations</h3>
+      <ul class="list-disc pl-5 space-y-2 text-gray-600">
+        <li>Pemasukan naik <span class="font-semibold text-green-600">+18%</span> dibanding periode sebelumnya.</li>
+        <li>Pengeluaran terbesar berasal dari kategori <span class="font-semibold">Operasional (45%)</span>.</li>
+        <li>Pertahankan margin laba bersih di atas <span class="font-semibold">25%</span> untuk stabilitas arus kas.</li>
+      </ul>
+    </div>
+
+  </div>

@@ -1,0 +1,171 @@
+<div class="bg-white p-6">
+  <section class="section">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between mb-6 gap-4">
+      <div>
+        <h1 id="formTitle" class="text-2xl font-bold mb-1">FORM INPUT PELANGGAN</h1>
+        <nav class="text-gray-500 text-sm flex items-center flex-wrap gap-1">
+          <span>Home</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span>Pelanggan</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span class="font-medium">Input</span>
+        </nav>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button onclick="createData()" id="addButton" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">Simpan</button>
+        <button onclick="updateData()" id="updateButton" class="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-4 py-2 rounded">Update</button>
+        <button onclick="loadModuleContent('contact')" class="bg-gray-300 text-sm px-4 py-2 rounded">⬅️ Kembali</button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex gap-2 border-b border-gray-300">
+      <button class="tab-link active-tab text-sm flex items-center gap-2 py-1 px-3 bg-blue-100 hover:bg-blue-200 rounded-t-md text-blue-600 font-semibold" data-tab="data" onclick="switchTab('data')">
+        ⬇️ <span class="menu-text hidden md:inline">Data Pelanggan</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600" data-tab="detail" onclick="switchTab('detail')">
+        ⬆️ <span class="menu-text hidden md:inline">Kemitraan</span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="tabContentWrapper" class="pt-4">
+      <div id="tab-data" class="tab-content">
+
+        <!-- Form Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <!-- Kolom Kiri: Informasi Pelanggan -->
+          <div>
+            <h2 class="text-blue-600 text-lg font-semibold mb-4">Informasi Pelanggan</h2>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">ID Pelanggan</label>
+              <input type="text" id="formID" placeholder="Auto Generated" class="flex-1 border rounded px-3 py-2" readonly />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Tanggal Bergabung</label>
+              <input type="date" id="formJoin" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Nama Lengkap <span class="text-red-500">*</span></label>
+              <input type="text" id="formNama" class="flex-1 border rounded px-3 py-2 uppercase" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Alias / Panggilan</label>
+              <input type="text" id="formAlias" class="flex-1 border rounded px-3 py-2 uppercase" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Whatsapp <span class="text-red-500">*</span></label>
+              <input type="text" id="formPhone" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Email</label>
+              <input type="email" id="formEmail" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">NIK</label>
+              <input type="text" id="formNIK" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">NPWP</label>
+              <input type="text" id="formNpwp" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Tanggal Lahir</label>
+              <input type="date" id="formBirth" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Website</label>
+              <input type="text" id="formWeb" class="flex-1 border rounded px-3 py-2" />
+            </div>
+          </div>
+
+          <!-- Kolom Kanan: Informasi Alamat -->
+          <div>
+            <h2 class="text-blue-600 text-lg font-semibold mb-4">Informasi Alamat</h2>
+
+            <div class="mb-4 flex items-start">
+              <label class="w-40 font-medium mt-2">Alamat</label>
+              <textarea id="formAlamat" rows="3" placeholder="Alamat" class="flex-1 border rounded px-3 py-2"></textarea>
+            </div>
+
+            <!-- Input Cari Wilayah -->
+            <div class="mb-4 flex items-start relative">
+              <label class="w-40 font-medium mt-2">Cari Wilayah</label>
+              <div class="flex-1">
+                <div class="flex">
+                  <input type="text" id="cityInput" placeholder="Cari Wilayah..." class="w-full border rounded-l px-3 py-2" />
+                  <span class="bg-gray-100 border border-l-0 px-3 rounded-r text-sm flex items-center">🔎</span>
+                </div>
+                <ul id="resultList" class="absolute z-10 w-full border bg-white mt-1 max-h-60 overflow-y-auto text-sm shadow-md rounded-md hidden"></ul>
+              </div>
+            </div>
+
+            <div class="mb-4 flex items-center hidden">
+              <label for="formregion_ID" class="w-40 font-medium">Region ID</label>
+              <input type="text" id="formregion_ID" placeholder="ID regional" class="flex-1 border rounded px-3 py-2"/>
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formKelurahan" class="w-40 font-medium">Kelurahan</label>
+              <input type="text" id="formKelurahan" placeholder="Kelurahan" class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formKecamatan" class="w-40 font-medium">Kecamatan</label>
+              <input type="text" id="formKecamatan" placeholder="Kecamatan" class="flex-1 border rounded px-3 py-2"/>
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formKota" class="w-40 font-medium">Kota/Kabupaten</label>
+              <input type="text" id="formKota" placeholder="Kota/Kabupaten" class="flex-1 border rounded px-3 py-2"/>
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formProvinsi" class="w-40 font-medium">Provinsi</label>
+              <input type="text" id="formProvinsi" placeholder="Provinsi" class="flex-1 border rounded px-3 py-2"/>
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formPOS" class="w-40 font-medium">Kode POS</label>
+              <input type="text" id="formPOS" placeholder="Kode POS" class="flex-1 border rounded px-3 py-2" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Detail -->
+      <div id="tab-detail" class="tab-content hidden">
+        <div id="kategoriSection" class="mt-6">
+          <h2 class="text-blue-600 text-lg font-semibold mb-2">Pilih Kategori Bisnis</h2>
+          <input type="text" id="searchKategori" placeholder="Cari kategori..." class="border p-2 rounded w-full mb-2" />
+          <div id="selectedCount" class="text-sm text-gray-600 mb-2">0 kategori dipilih</div>
+
+          <form id="kategoriForm">
+            <div id="kategoriList" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto border p-3 rounded bg-gray-50">
+              <!-- Checkbox kategori akan ditambahkan di sini -->
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>

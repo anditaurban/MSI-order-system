@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Label Pengiriman Per Koli - MKI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @media print {
+      @page {
+        size: calc(var(--label-width, 150mm)) calc(var(--label-height, 100mm)) landscape;
+        margin: 0;
+      }
+
+      body {
+        margin: 0;
+      }
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+  </style>
+</head>
+
+<body class="bg-white font-sans text-[12px] leading-tight">
+
+  <div id="combinedLabels" class="px-0 py-4">
+  </div>
+
+  <script>
+    // --- CONFIG ---
+    const script = document.createElement('script');
+    script.src = `./assets/js/api.js?v=${new Date().getTime()}`;
+    script.onload = () => loadAllLabels();
+    document.body.appendChild(script);
+
+    const defaultWidth = '150';
+    const defaultHeight = '100';
+
+    const labelWidth = localStorage.getItem('label_width') || defaultWidth;
+    const labelHeight = localStorage.getItem('label_height') || defaultHeight;
+
+    const container = document.getElementById('combinedLabels');
+    const urlParams = new URLSearchParams(window.location.search);
+    const shipmentIds = urlParams.get('ids')?.split(',') || [];
+
+    // --- MAIN FUNCTION ---
+    async function loadAllLabels() {
+      container.innerHTML = '';
+
+      for (const id of shipmentIds) {
+        try {
+          // 1. FETCH SHIPMENT
+          const resShipment = await fetch(`${baseUrl}/detail/sales_shipment/${id}`, {
+            headers: { 'Authorization': `Bearer ${API_TOKEN}` }
+          });
+          const dataShipment = await resShipment.json();
+          const detailShipment = dataShipment.detail;
+
+          if (!detailShipment) continue;
+
+          let itemsData = [];
+
+          let mainPackageName = null;
+          if (detailShipment.package_groups && Array.isArray(detailShipment.package_groups)) {
+            const noGroup = detailShipment.package_groups.find(g => g.package_group === 'no_group');
+
+            if (noGroup && noGroup.items && noGroup.items.length > 0) {
+              const mainItem = noGroup.items[0];
+              const cat = mainItem.business_category ? `(${mainItem.business_category})` : '';
+              mainPackageName = `${mainItem.item_name} ${cat}`;
+            }
+          }
+          if (detailShipment.items && detailShipment.items.length > 0) {
+            itemsData = detailShipment.items;
+          }
+          else if (detailShipment.package_id) {
+            try {
+              const resPackage = await fetch(`${baseUrl}/detail/sales_package/${detailShipment.package_id}`, {
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
+              });
+              const dataPackage = await resPackage.json();
+              itemsData = dataPackage.detail?.items || [];
+            } catch (err) {
+              console.warn("Gagal ambil detail paket", err);
+            }
+          }
+          const koliGroups = groupItemsByKoli(itemsData);
+
+          const koliNames = Object.keys(koliGroups).sort((a, b) => {
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+          });
+          const totalKoli = koliNames.length;
+
+          if (totalKoli === 0) {
+            const defaultItems = detailShipment.item_list ? detailShipment.item_list.join(', ') : "Item data tidak tersedia";
+            createLabelHTML(detailShipment, "Standard", 1, 1, defaultItems, mainPackageName);
+            continue;
+          }
+
+          // 5. Generate Label Loop
+          koliNames.forEach((koliName, index) => {
+            // Skip render label untuk 'no_group' jika itu dianggap bukan koli fisik
+            if (koliName.toLowerCase() === 'no_group') return;
+
+            const itemsInThisKoli = koliGroups[koliName].join(', ');
+            const packageNumber = index + 1;
+
+            // Kita kirim mainPackageName ke fungsi pembuat HTML
+            createLabelHTML(detailShipment, koliName, packageNumber, totalKoli, itemsInThisKoli, mainPackageName);
+          });
+
+        } catch (error) {
+          console.error('Gagal memuat shipment ID:', id, error);
+        }
+      }
+
+      generateBarcodes();
+    }
+
+    // --- Helper: Grouping Item ---
+    function groupItemsByKoli(items) {
+      const groups = {};
+      if (!Array.isArray(items) || items.length === 0) return groups;
+
+      const addItem = (groupName, itemName, qty) => {
+        // Normalisasi nama koli
+        let key = (groupName && groupName.trim() !== "") ? groupName : "Lainnya";
+        if (key === 'no_group') return;
+
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(`${itemName} (${qty})`);
+      };
+
+      items.forEach(item => {
+        // Cek struktur baru (dari package_groups shipment) atau struktur lama (detail items)
+        // Jika data flat items:
+        if (item.package_group) {
+          addItem(item.package_group, item.item_name, item.qty);
+        }
+        // Jika bundling (struktur lama dari sales_package detail)
+        else if (item.bundling === true && Array.isArray(item.item_detail)) {
+          item.item_detail.forEach(sub => {
+            addItem(sub.package_group, sub.item_name, sub.qty);
+          });
+        }
+        // Jika item biasa (struktur lama)
+        else {
+          addItem(item.package_group, item.item_name, item.qty);
+        }
+      });
+
+      return groups;
+    }
+
+    // --- Helper: HTML Label ---
+    function createLabelHTML(detail, koliName, currentPkg, totalPkg, itemsList, mainPackageName) {
+      const labelDiv = document.createElement('div');
+
+      labelDiv.className = 'mx-auto border border-black relative page-break px-4 pt-4 pb-2 mb-10 flex flex-col justify-between';
+      labelDiv.style.width = labelWidth + 'mm';
+      labelDiv.style.height = labelHeight + 'mm';
+
+      const displayKoliName = koliName.toUpperCase();
+
+      // HTML untuk Nama Paket (Hanya muncul jika mainPackageName ada)
+      // HTML untuk Nama Paket (Hanya muncul jika mainPackageName ada)
+      const packageInfoHTML = mainPackageName
+        ? `<div class="mt-1 w-full">
+                  <strong>Paket:</strong><br>
+                  <div class="text-[11px] uppercase line-clamp-3 overflow-hidden text-ellipsis leading-tight" title="${mainPackageName}">
+                    ${mainPackageName}
+                  </div>
+                </div>`
+        : '';
+
+      labelDiv.innerHTML = `
+          <div class="flex-none">
+              <div class="relative h-14 w-full mb-1">
+                <img src="assets/img/cropped-Logo-MKI.webp" alt="Logo" class="absolute top-0 left-0 h-7">
+                <div class="text-center px-12">
+                  <p class="text-[12px] font-bold">FAKTUR ${detail.no_inv}</p>
+                  <svg class="barcode-invoice w-full h-10" data-value="${detail.no_inv}"></svg>
+                </div>
+                <div class="absolute top-0 right-0">
+                  <img src="${detail.courier_logo}" alt="Logo Kurir" class="h-7">
+                </div>
+              </div>
+
+              <div class="border-t border-black pt-1 flex gap-4 text-[11px] leading-tight">
+                <div class="w-1/2">
+                  <strong>Pengirim:</strong><br>
+                  ${detail.sender_name}<br>
+                  ${detail.sender_address}<br>
+                  <span class="font-semibold">${detail.sender_phone}</span>
+                </div>
+                <div class="w-1/2">
+                  <strong>Penerima:</strong><br>
+                  ${detail.nama}<br>
+                  ${detail.shipment_address}<br>
+                  ${detail.region_name}<br>
+                  <span class="font-semibold">${detail.whatsapp}</span>
+                </div>
+              </div>
+
+              <div class="mt-1 text-[11px]">
+                 <div>
+                    <strong>Tgl Sales:</strong><br> ${detail.sales_date || '-'}
+                 </div>
+                 ${packageInfoHTML}
+              </div>
+          </div>
+
+          <div class="flex-1 min-h-0 overflow-hidden border-t border-dashed border-gray-400 mt-2 pt-1 mb-1">
+            <div class="text-[10px] leading-tight">
+                <strong>ISI PAKET:</strong><br>
+                ${itemsList}
+            </div>
+          </div>
+
+          <div class="flex-none">
+              <div class="text-[12px] font-bold mb-1 border-b border-black pb-1">
+                 ${displayKoliName}
+              </div>
+              <div class="border border-black py-1 text-center text-[11px]">
+                <span class="font-bold">CATATAN PENGIRIMAN</span><br>
+                <span>${detail.courier_note || '-'}</span>
+              </div>
+          </div>
+        `;
+
+      container.appendChild(labelDiv);
+    }
+
+    function generateBarcodes() {
+      document.querySelectorAll('.barcode-invoice').forEach(svg => {
+        JsBarcode(svg, svg.dataset.value, { format: "CODE128", width: 1.5, height: 40, displayValue: false });
+      });
+    }
+  </script>
+</body>
+
+</html>

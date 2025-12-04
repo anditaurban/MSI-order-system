@@ -1,5 +1,5 @@
-const user = JSON.parse(localStorage.getItem('user') || '{}');
-const company = JSON.parse(localStorage.getItem('company') || '{}');
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+const company = JSON.parse(localStorage.getItem("company") || "{}");
 
 const owner_id = user.owner_id;
 const user_id = user.user_id;
@@ -12,7 +12,7 @@ const address = company.address;
 const company_phone = company.company_phone;
 const printer_setting = company.printer_setting;
 // const userRole = 'finance'; // contoh: 'superadmin', 'sales', 'finance', 'shipping'
-const userRole = user.role || 'guest';
+const userRole = user.role || "guest";
 
 // const default_module = 'dashboard';
 const default_module = getDefaultModule(userRole);
@@ -27,44 +27,48 @@ let loadingStart = 0;
 let pagemoduleparent = "";
 const today = new Date();
 const year = today.getFullYear();
-const month = String(today.getMonth() + 1).padStart(2, '0');
-const day = String(today.getDate()).padStart(2, '0');
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
 const formattedDate = `${year}-${month}-${day}`;
 let cashier_id = 0;
 let current_date = formattedDate;
 let nama = "User";
+const picDebounceTimer = { timer: null };
 
 const scriptsToLoad = [
   `./assets/js/utils.js`,
   `./assets/js/api.js`,
-  `./assets/js/table.js`
+  `./assets/js/table.js`,
 ];
 
 // if (!owner_id || !user_id || !level || !nama) {
-  if (!owner_id || !user_id || !level|| !username) {
-    window.location.href = 'login.html'; 
+if (!owner_id || !user_id || !level || !username) {
+  window.location.href = "login.html";
 }
 
-
 function formatRupiah(value) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value);
 }
 
 function finance(value) {
-  return new Intl.NumberFormat('id-ID', {
-    maximumFractionDigits: 0
+  return new Intl.NumberFormat("id-ID", {
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
 function getDefaultModule(role) {
   const roleDefault = {
-    superadmin: 'dashboard',
-    sales: 'sales',
-    finance: 'sales',
-    shipping: 'package',
-    packing: 'package',
+    superadmin: "dashboard",
+    sales: "sales",
+    finance: "sales",
+    shipping: "package",
+    packing: "package",
   };
-  return roleDefault[role] || 'dashboard';
+  return roleDefault[role] || "dashboard";
 }
 
 async function loadSection(sectionPath) {
@@ -82,25 +86,28 @@ async function loadSection(sectionPath) {
 }
 
 function loadScript(src, callback) {
-  const script = document.createElement('script');
+  const script = document.createElement("script");
   script.src = src;
   script.onload = callback;
   script.onerror = () => console.error(`Error loading script: ${src}`);
   document.body.appendChild(script);
 }
 
-scriptsToLoad.forEach(script => loadScript(`${script}?v=${new Date().getTime()}`, () => {}));
+scriptsToLoad.forEach((script) =>
+  loadScript(`${script}?v=${new Date().getTime()}`, () => {})
+);
 
 async function loadAppSections() {
   const sectionDataDiv = document.getElementById("section-data");
 
-  const [headNavbar, sideNavbar, mainContent, footNavbar, footer] = await Promise.all([
-    loadSection(`section/headnavbar.html?v=${new Date().getTime()}`),
-    loadSection(`section/sidenavbar.html?v=${new Date().getTime()}`),
-    loadSection(`section/maincontent.html?v=${new Date().getTime()}`),
-    loadSection(`section/footnavbar.html?v=${new Date().getTime()}`),
-    loadSection(`section/footer.html?v=${new Date().getTime()}`)
-  ]);
+  const [headNavbar, sideNavbar, mainContent, footNavbar, footer] =
+    await Promise.all([
+      loadSection(`section/headnavbar.html?v=${new Date().getTime()}`),
+      loadSection(`section/sidenavbar.html?v=${new Date().getTime()}`),
+      loadSection(`section/maincontent.html?v=${new Date().getTime()}`),
+      loadSection(`section/footnavbar.html?v=${new Date().getTime()}`),
+      loadSection(`section/footer.html?v=${new Date().getTime()}`),
+    ]);
 
   sectionDataDiv.innerHTML = `${headNavbar}${sideNavbar}${mainContent}${footNavbar}${footer}`;
   modedev();
@@ -112,11 +119,11 @@ async function loadAppSections() {
 
 function addSideNavListeners() {
   // const links = document.querySelectorAll('nav div ul li a');
-  const links = document.querySelectorAll('nav a');
-  links.forEach(link => {
-    link.addEventListener('click', e => {
+  const links = document.querySelectorAll("nav a");
+  links.forEach((link) => {
+    link.addEventListener("click", (e) => {
       e.preventDefault();
-      const module = link.getAttribute('data-module');
+      const module = link.getAttribute("data-module");
       loadModuleContent(module);
     });
   });
@@ -124,7 +131,7 @@ function addSideNavListeners() {
 
 function showLoading() {
   loadingStart = Date.now();
-  document.getElementById('loadingOverlay')?.classList.remove('hidden');
+  document.getElementById("loadingOverlay")?.classList.remove("hidden");
 }
 
 function hideLoading() {
@@ -132,26 +139,25 @@ function hideLoading() {
   const delay = Math.max(0, 500 - elapsed); // pastikan minimal 1 detik
 
   setTimeout(() => {
-    document.getElementById('loadingOverlay')?.classList.add('hidden');
+    document.getElementById("loadingOverlay")?.classList.add("hidden");
   }, delay);
 }
 
 function loadModuleContent(module, Id, Detail, Detail2) {
-  
   showLoading();
   setActiveMenu(module);
-  currentDataSearch='';
+  currentDataSearch = "";
   fetch(`./module/${module}/data.html?v=${new Date().getTime()}`)
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(`Error loading module: ${module}`);
       }
       return response.text();
     })
-    .then(data => {
-      document.getElementById('content').innerHTML = data;
+    .then((data) => {
+      document.getElementById("content").innerHTML = data;
 
-      if (data.trim() !== '') {
+      if (data.trim() !== "") {
         window.detail_id = Id;
         window.detail_desc = Detail;
         window.detail2_desc = Detail2;
@@ -161,26 +167,30 @@ function loadModuleContent(module, Id, Detail, Detail2) {
         document.body.removeChild(currentScript);
       }
 
-      currentScript = document.createElement('script');
+      currentScript = document.createElement("script");
       currentScript.src = `./module/${module}/script.js?v=${new Date().getTime()}`;
       document.body.appendChild(currentScript);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
-      document.getElementById('content').innerHTML = `<p>Error loading module ${module}</p>`;
+      document.getElementById(
+        "content"
+      ).innerHTML = `<p>Error loading module ${module}</p>`;
     });
-    hideLoading();
+  hideLoading();
 }
 
 function collapseSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const mainContent = document.getElementById('mainContent');
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
 
-  document.querySelectorAll('#sidebar .menu-text').forEach(el => el.classList.add('hidden'));
-  sidebar.classList.add('w-16');
-  sidebar.classList.remove('w-64');
-  mainContent.classList.add('md:ml-16');
-  mainContent.classList.remove('md:ml-64');
+  document
+    .querySelectorAll("#sidebar .menu-text")
+    .forEach((el) => el.classList.add("hidden"));
+  sidebar.classList.add("w-16");
+  sidebar.classList.remove("w-64");
+  mainContent.classList.add("md:ml-16");
+  mainContent.classList.remove("md:ml-64");
 }
 
 window.onload = loadAppSections;

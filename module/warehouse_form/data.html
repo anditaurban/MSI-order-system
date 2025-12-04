@@ -1,0 +1,179 @@
+<div class="bg-white p-6">
+  <section class="section">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between mb-6 gap-4">
+      <div>
+        <h1 id="formTitle" class="text-2xl font-bold mb-1">FORM INPUT WAREHOUSE</h1>
+        <nav class="text-gray-500 text-sm flex items-center flex-wrap gap-1">
+          <span>Home</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span>Warehouse</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span class="font-medium">Input</span>
+        </nav>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button onclick="createData()" id="addButton"
+          class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">Simpan</button>
+        <button onclick="updateData()" id="updateButton"
+          class="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-4 py-2 rounded">Update</button>
+        <button onclick="loadModuleContent('warehouse')" class="bg-gray-300 text-sm px-4 py-2 rounded">⬅️
+          Kembali</button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex gap-2 border-b border-gray-300">
+      <button
+        class="tab-link active-tab text-sm flex items-center gap-2 py-1 px-3 bg-blue-100 hover:bg-blue-200 rounded-t-md text-blue-600 font-semibold"
+        data-tab="data" onclick="switchTab('data')">
+        ⬇️ <span class="menu-text hidden md:inline">Data Gudang</span>
+      </button>
+      <button class="tab-link text-sm flex items-center gap-2 py-1 px-3 hover:bg-blue-200 rounded-t-md text-gray-600"
+        data-tab="detail" onclick="switchTab('detail')">
+        ⬆️ <span class="menu-text hidden md:inline">Data PIC</span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="tabContentWrapper" class="pt-4">
+      <div id="tab-data" class="tab-content">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <div>
+            <h2 class="text-blue-600 text-lg font-semibold mb-4">Informasi Gudang</h2>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Kode Gudang <span class="text-red-500">*</span></label>
+              <input type="text" id="formID" placeholder="Contoh: GDG_001"
+                class="flex-1 border rounded px-3 py-2 uppercase" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Tipe Gudang <span class="text-red-500">*</span></label>
+              <select id="formType" class="flex-1 border rounded px-3 py-2 bg-white">
+                <option value="">Memuat data...</option>
+              </select>
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">Nama Gudang <span class="text-red-500">*</span></label>
+              <input type="text" id="formNama" placeholder="Contoh: Gudang A"
+                class="flex-1 border rounded px-3 py-2 uppercase" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label class="w-40 font-medium">No Telepon <span class="text-red-500">*</span></label>
+              <input type="text" id="formPhone" placeholder="08..." class="flex-1 border rounded px-3 py-2" />
+            </div>
+
+          </div>
+
+          <div>
+            <h2 class="text-blue-600 text-lg font-semibold mb-4">Informasi Alamat</h2>
+
+            <div class="mb-4 flex items-start">
+              <label class="w-40 font-medium mt-2">Alamat Lengkap</label>
+              <textarea id="formAlamat" rows="3" placeholder="Nama Jalan, Gedung, No..."
+                class="flex-1 border rounded px-3 py-2"></textarea>
+            </div>
+
+            <div class="mb-4 flex items-start relative">
+              <label class="w-40 font-medium mt-2">Cari Wilayah <span class="text-red-500">*</span></label>
+              <div class="flex-1">
+                <div class="flex">
+                  <input type="text" id="cityInput" placeholder="Ketik Kelurahan / Kecamatan..."
+                    class="w-full border rounded-l px-3 py-2" />
+                  <span class="bg-gray-100 border border-l-0 px-3 rounded-r text-sm flex items-center">🔎</span>
+                </div>
+                <ul id="resultList"
+                  class="absolute z-10 w-full border bg-white mt-1 max-h-60 overflow-y-auto text-sm shadow-md rounded-md hidden">
+                </ul>
+              </div>
+            </div>
+
+            <input type="hidden" id="formregion_ID" />
+
+            <div class="mb-4 flex items-center">
+              <label for="formKelurahan" class="w-40 font-medium">Kelurahan</label>
+              <input type="text" id="formKelurahan" class="flex-1 border rounded px-3 py-2 bg-gray-50" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formKecamatan" class="w-40 font-medium">Kecamatan</label>
+              <input type="text" id="formKecamatan" class="flex-1 border rounded px-3 py-2 bg-gray-50" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formKota" class="w-40 font-medium">Kota/Kab</label>
+              <input type="text" id="formKota" class="flex-1 border rounded px-3 py-2 bg-gray-50" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formProvinsi" class="w-40 font-medium">Provinsi</label>
+              <input type="text" id="formProvinsi" class="flex-1 border rounded px-3 py-2 bg-gray-50" />
+            </div>
+
+            <div class="mb-4 flex items-center">
+              <label for="formPOS" class="w-40 font-medium">Kode POS</label>
+              <input type="text" id="formPOS" class="flex-1 border rounded px-3 py-2 bg-gray-50" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Detail -->
+      <div id="tab-detail" class="tab-content hidden">
+        <div class="mt-6 bg-white border rounded-lg p-6 shadow-sm">
+
+          <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-sm mb-4">
+            <div class="w-full md:w-auto">
+              <h2 class="text-blue-600 text-lg font-semibold mb-2">Daftar Penanggung Jawab (PIC)</h2>
+              <input type="text" id="searchPicInput" placeholder="🔎 Cari nama PIC..."
+                class="px-3 py-2 border rounded w-full md:w-80 mt-1" />
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-2 w-full md:w-auto mt-4 md:mt-0">
+              <button id="btnAddPic" onclick="openPicModal()"
+                class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded flex items-center gap-2">
+                <span>+</span> Tambah PIC
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left font-medium text-gray-600">Nama PIC</th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-600">Kontak</th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-600">Alamat</th>
+                  <th class="px-4 py-3 text-center font-medium text-gray-600 w-32">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr>
+                  <td colspan="4" class="text-center py-4">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+            <p id="infoText" class="text-gray-600 text-sm text-left"></p>
+            <div id="pagination" class="flex w-full md:w-auto justify-end items-center flex-wrap gap-2 text-sm"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>

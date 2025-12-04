@@ -1,0 +1,71 @@
+<div class="bg-white p-6 rounded-lg shadow">
+  <section class="space-y-6">
+
+    <div class="flex flex-wrap items-start justify-between mb-4 gap-4">
+      <div>
+        <h1 id="pageTitle" class="text-2xl font-bold mb-1"></h1>
+        <nav id="breadcrumb" class="text-gray-500 text-sm flex items-center flex-wrap gap-1"></nav>
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-sm">
+      <!-- Kiri: Project Name + Client Name -->
+      <div class="flex flex-col w-full md:w-auto">
+        <span class="text-lg font-semibold" id="projectNameDisplay"></span>
+        <h1 id="clientNameTitle" class="text-2xl font-bold"></h1>
+      </div>
+
+      <!-- Kanan: Tombol Back -->
+      <div class="flex justify-end w-full md:w-auto">
+        <button onclick="loadModuleContent('client')" class="bg-gray-300 hover:bg-gray-400 text-sm px-4 py-2 rounded">
+          ⬅️ Back
+        </button>
+      </div>
+    </div>
+
+
+    <hr />
+
+    <div class="border rounded-lg p-6 bg-white shadow">
+
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 text-sm mb-4">
+
+        <div class="w-full md:w-auto">
+          <h2 class="text-xl font-semibold mb-2 md:mb-0">Person in Charge (PIC) / Kontak</h2>
+          <input type="text" id="searchInput" placeholder="🔎 Cari kontak..."
+            class="px-3 py-2 border rounded w-full md:w-96 mt-2" />
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 w-full md:w-auto">
+          <button id="addButton" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded">
+            + Tambah Kontak
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border">
+          <thead id="tableHeader" class="hidden md:table-header-group bg-gray-100 text-gray-600">
+            <tr>
+              <th class="px-4 py-2 border">Name</th>
+              <th class="px-4 py-2 border">Email</th>
+              <th class="px-4 py-2 border">Phone</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        <p id="infoText" class="hidden md:block text-gray-600 text-sm text-left"></p>
+
+        <div id="pagination" class="hidden md:flex w-full justify-between items-center flex-wrap gap-2 text-sm"></div>
+
+        <div class="block md:hidden text-sm text-center mb-12">
+          <label for="pageSelect" class="mr-2">Go to Page:</label>
+          <select id="pageSelect" class="px-2 py-1 border rounded"></select>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

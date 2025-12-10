@@ -251,10 +251,10 @@ function renderSidebar(role) {
           </div>
           <div id="productSubmenu" class="hidden ml-8 flex flex-col space-y-2">
             ${createMenuItem("product", allMenus.product)}
-            ${createMenuItem("warehouse", allMenus.warehouse)}
+            
           </div>
         </div>
-
+        ${createMenuItem("warehouse", allMenus.warehouse)}
         ${createMenuItem("contact", allMenus.contact)}
         ${createMenuItem("report", allMenus.report)}
         ${createMenuItem("employee", allMenus.employee)}

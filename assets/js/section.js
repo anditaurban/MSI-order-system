@@ -183,6 +183,10 @@ const allMenus = {
   package: { icon: "📦", label: "Pengepakan", badge: true },
   shipment: { icon: "🚚", label: "Pengiriman", badge: true },
   product: { icon: "📋", label: "Produk" },
+  opname: { icon: "🗳️", label: "Opname" },
+  inbound: { icon: "📥", label: "Inbound" },
+  outbound: { icon: "📤", label: "Outbound" },
+  mutasi: { icon: "🔄", label: "Mutasi" },
   warehouse: { icon: "🏭", label: "Gudang" },
   contact: { icon: "👤", label: "Pelanggan" },
   report: { icon: "📈", label: "Laporan" },
@@ -193,7 +197,16 @@ const allMenus = {
 
 const roleMenus = {
   superadmin: Object.keys(allMenus),
-  sales: ["sales", "receipt", "package", "shipment", "contact"],
+  sales: [
+    "sales",
+    "receipt",
+    "package",
+    "shipment",
+    "contact",
+    "opname",
+    "inbound",
+    "outbound",
+  ],
   finance: ["sales", "receipt", "product", "warehouse", "contact"],
   shipping: ["package", "shipment"],
   packing: ["package", "shipment"],
@@ -216,53 +229,63 @@ function renderSidebar(role) {
   const menuContainer = document.getElementById("sidebarMenu");
   menuContainer.innerHTML = "";
 
-  // Jika superadmin, tampilkan semua termasuk submenu
   if (role === "superadmin") {
     menuContainer.innerHTML = `
+      <!-- DASHBOARD (DISABLED) -->
+      <div class="pointer-events-none opacity-60 text-gray-400">
         ${createMenuItem("dashboard", allMenus.dashboard)}
+      </div>
 
-        <div class="flex flex-col space-y-2">
-          <div class="flex items-center gap-2 py-2 px-2 hover:bg-blue-200 rounded-lg cursor-pointer" onclick="toggleSubMenu('salesSubmenu')">
-            <span>💼</span>
-            <span class="menu-text flex justify-between items-center w-full">
-              Penjualan
-              <svg class="w-4 h-4 ml-auto transition-transform transform" id="salesSubmenuIcon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-          </div>
-          <div id="salesSubmenu" class="hidden ml-8 flex flex-col space-y-2">
-            ${createMenuItem("sales", allMenus.sales)}
-            ${createMenuItem("receipt", allMenus.receipt)}
-            ${createMenuItem("package", allMenus.package)}
-            ${createMenuItem("shipment", allMenus.shipment)}
-          </div>
+      <!-- PENJUALAN (DISABLED TOTAL) -->
+      <div class="flex items-center gap-2 py-2 px-2 text-gray-400 opacity-60 cursor-not-allowed">
+        <span>💼</span>
+        <span class="menu-text">Penjualan</span>
+      </div>
+
+      <!-- PERSEDIAAN (AKTIF) -->
+      <div class="flex flex-col space-y-2">
+        <div class="flex items-center gap-2 py-2 px-2 hover:bg-blue-200 rounded-lg cursor-pointer"
+             onclick="toggleSubMenu('productSubmenu')">
+          <span>📦</span>
+          <span class="menu-text flex justify-between items-center w-full">
+            Persediaan
+            <svg class="w-4 h-4 ml-auto transition-transform transform"
+                 id="productSubmenuIcon"
+                 fill="none" stroke="currentColor"
+                 stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
         </div>
 
-        <div class="flex flex-col space-y-2">
-          <div class="flex items-center gap-2 py-2 px-2 hover:bg-blue-200 rounded-lg cursor-pointer" onclick="toggleSubMenu('productSubmenu')">
-            <span>📦</span>
-            <span class="menu-text flex justify-between items-center w-full">
-              Persediaan
-              <svg class="w-4 h-4 ml-auto transition-transform transform" id="productSubmenuIcon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-          </div>
-          <div id="productSubmenu" class="hidden ml-8 flex flex-col space-y-2">
-            ${createMenuItem("product", allMenus.product)}
-            
+        <div id="productSubmenu" class="hidden ml-8 flex flex-col space-y-2">
+          ${createMenuItem("product", allMenus.product)}
+          ${createMenuItem("inbound", allMenus.inbound)}
+          ${createMenuItem("outbound", allMenus.outbound)}
+          ${createMenuItem("mutasi", allMenus.mutasi)}
+
+          <!-- OPNAME (DISABLED) -->
+          <div class="pointer-events-none opacity-60 text-gray-400">
+            ${createMenuItem("opname", allMenus.opname)}
           </div>
         </div>
-        ${createMenuItem("warehouse", allMenus.warehouse)}
+      </div>
+
+      <!-- GUDANG (AKTIF) -->
+      ${createMenuItem("warehouse", allMenus.warehouse)}
+
+      <!-- MENU LAIN (DISABLED) -->
+      <div class="pointer-events-none opacity-60 text-gray-400">
         ${createMenuItem("contact", allMenus.contact)}
         ${createMenuItem("report", allMenus.report)}
         ${createMenuItem("employee", allMenus.employee)}
         ${createMenuItem("user", allMenus.user)}
         ${createMenuItem("setting_unit", allMenus.setting)}
-      `;
+      </div>
+    `;
   } else {
-    // Role selain superadmin, menu dibuat flat
+    // Role selain superadmin
     allowed.forEach((key) => {
       if (allMenus[key]) {
         menuContainer.innerHTML += createMenuItem(key, allMenus[key]);

@@ -1,6 +1,6 @@
-pagemodule = "Product";
+pagemodule = "product_inbound";
 colSpanCount = 9;
-setDataType("product_werehouse_owner");
+setDataType("product_inbound_owner");
 fetchAndUpdateData();
 
 window.rowTemplate = function (item, index, perPage = 10) {
@@ -9,77 +9,54 @@ window.rowTemplate = function (item, index, perPage = 10) {
 
   return `
   <tr class="flex flex-col sm:table-row border rounded sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none transition hover:bg-gray-50">
-
-    <!-- Kode -->
-    <td class="px-6 py-4 text-sm border-b sm:border-0 flex justify-between sm:table-cell
-               bg-gray-800 text-white sm:bg-transparent sm:text-gray-700">
+    <td class="px-6 py-4 text-sm border-b sm:border-0 flex justify-between sm:table-cell bg-gray-800 text-white sm:bg-transparent sm:text-gray-700">
       <span class="font-medium sm:hidden">Kode</span>
-      ${item.productcode || "-"}
+      ${item.inv_number}
+    </td>
+  
+     <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <span class="font-medium sm:hidden">Barang</span>  
+    ${item.inbound_date} & 
+    ${item.expired_date}
     </td>
 
-    <!-- Nama Barang -->
-    <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Barang</span>
-      ${item.product || "-"}
-    </td>
-
-    <!-- Harga -->
-<td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Harga</span>
-      ${formatRupiah(item.cogs || 0)}
-    </td>
-
+  
     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Harga</span>
-      ${formatRupiah(item.sale_price || 0)}
+      ${item.product}
+    </td>
+  
+     <td class="px-6 py-4 text-sm text-center text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <span class="font-medium sm:hidden">Kategori</span>  
+    ${formatRupiah(item.purchase_price)}
     </td>
 
-    <!-- Kategori -->
     <td class="px-6 py-4 text-sm text-center text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Kategori</span>
-      ${item.category || "-"} - (${item.material})
+    <span class="font-medium sm:hidden">Kategori</span>  
+    ${formatRupiah(item.unit_price)}
     </td>
-
-    <!-- Berat -->
-    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Berat</span>
-      ${finance(item.weight || 0)} gr
+  
+     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <span class="font-medium sm:hidden">Stok</span>  
+    ${finance(item.qty)}
     </td>
+  
+     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <span class="font-medium sm:hidden">Kemitraan</span>  
+    ${item.notes}
 
-    <!-- Kemitraan (DATA TIDAK ADA → TAMPIL "-") -->
-    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Kemitraan</span>
-      ${item.stock}
     </td>
-
-    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Kemitraan</span>
-      ${item.werehouse}
+     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <span class="font-medium sm:hidden">Stok</span>  
+    ${item.aging_text}
     </td>
-
-    <!-- Status + Dropdown -->
-    <td class="px-6 py-4 text-sm text-center text-gray-700 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Status</span>
-
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-        ${
-          item.status === "Active"
-            ? "bg-green-100 text-green-800"
-            : "bg-red-100 text-red-800"
-        }">
-        ${item.status === "Active" ? "Active" : "Inactive"}
-      </span>
-
-      
-    </td>
-
   </tr>`;
 };
 
 document.getElementById("addButton").addEventListener("click", () => {
   // showFormModal();
   // loadDropdownCall();
-  loadModuleContent("product_form");
+  loadModuleContent("inbound_form");
 });
 
 function toggleProductStatus(id, status_id) {

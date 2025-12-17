@@ -36,6 +36,10 @@ window.rowTemplate = function (item, index, perPage = 10) {
     ${item.notes || "-"}
     </td>
 
+    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+      <span class="font-medium sm:hidden">Kemitraan</span>
+      ${item.werehouse}
+    </td>
     
   </tr>`;
 };

@@ -4,16 +4,23 @@
             <div>
                 <h1 id="pageTitle" class="text-2xl font-bold mb-1">RETUR BARANG</h1>
                 <nav class="text-gray-500 text-sm flex items-center flex-wrap gap-1">
-                    <span>Produk</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
                     <span>Persediaan</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                     <span>Retur Barang</span>
                 </nav>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <button onclick="loadModuleContent('retur_form')" id="addButton"
+                    class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded flex items-center gap-2">
+                    📥 Tambah Produk Retur
+                </button>
+                <button onclick="exportData()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded flex items-center gap-2">
+                    📄 Export Excel
+                </button>
             </div>
         </div>
 
@@ -30,14 +37,11 @@
                 <thead id="tableHeader"
                     class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold uppercase tracking-wider">
                     <tr>
-                        <th class="px-4 py-3 border-b text-left w-[120px]">Tanggal</th>
-                        <th class="px-4 py-3 border-b text-left">No. Ref</th>
-                        <th class="px-4 py-3 border-b text-left">Customer</th>
-                        <th class="px-4 py-3 border-b text-left">Produk</th>
+                        <th class="px-4 py-3 border-b text-Center w-[120px]">Tanggal</th>
+                        <th class="px-4 py-3 border-b text-Center">Customer</th>
+                        <th class="px-4 py-3 border-b text-center">Produk</th>
                         <th class="px-4 py-3 border-b text-center">Qty</th>
-                        <th class="px-4 py-3 border-b text-center">Kondisi</th>
-                        <th class="px-4 py-3 border-b text-right">Catatan</th>
-                        <th class="px-4 py-2 border">Gudang</th>
+                        <th class="px-4 py-3 border-b text-center">Catatan</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">

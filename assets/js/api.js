@@ -70,6 +70,7 @@ const endpointList = [
   "product_outbound_owner",
   "product_mutation_owner",
   "product_werehouse_owner",
+  "product_return_owner",
   "product_bundling",
   "client",
   "business_category",

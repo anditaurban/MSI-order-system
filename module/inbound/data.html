@@ -2,29 +2,18 @@
   <section class="section">
     <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
       <div>
-        <h1 id="pageTitle" class="text-2xl font-bold mb-1">PRODUK MASUK (INBOUND)</h1>
+        <h1 id="pageTitle" class="text-2xl font-bold mb-1">PRODUK MASUK</h1>
         <nav class="text-gray-500 text-sm flex items-center flex-wrap gap-1">
           <span>Beranda</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
-          <span>Stok</span>
+          <span>Persediaan</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
-          <span class="font-medium text-blue-600">Produk Masuk</span>
+          <span class="font-medium">Produk Masuk</span>
         </nav>
-      </div>
-
-      <div class="flex flex-wrap gap-2 hidden">
-        <button onclick="loadModuleContent('inbound_form')" id="addButton"
-          class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded flex items-center gap-2">
-          📥 Input Stok Masuk
-        </button>
-        <button onclick="exportData()"
-          class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded flex items-center gap-2">
-          📄 Export Excel
-        </button>
       </div>
     </div>
 
@@ -48,7 +37,7 @@
             <th class="px-4 py-3 border-b text-right">Kts</th>
             <th class="px-4 py-3 border-b text-right">Catatan</th>
             <th class="px-4 py-3 border-b text-left">Umur</th>
-            <th class="px-4 py-3 border-b text-left">Gudang</th>
+            <th class="px-4 py-2 border">Gudang</th>
           </tr>
         </thead>
         <tbody id="tableBody" class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">

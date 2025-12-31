@@ -184,9 +184,10 @@ const allMenus = {
   shipment: { icon: "🚚", label: "Pengiriman", badge: true },
   product: { icon: "📋", label: "Produk" },
   opname: { icon: "🗳️", label: "Opname" },
-  inbound: { icon: "📥", label: "Inbound" },
-  outbound: { icon: "📤", label: "Outbound" },
+  inbound: { icon: "📥", label: "Produk Masuk" },
+  outbound: { icon: "📤", label: "Produk Keluar" },
   mutasi: { icon: "🔄", label: "Mutasi" },
+  retur: { icon: "🔂", label: "Retur" },
   warehouse: { icon: "🏭", label: "Gudang" },
   contact: { icon: "👤", label: "Pelanggan" },
   report: { icon: "📈", label: "Laporan" },
@@ -206,6 +207,7 @@ const roleMenus = {
     "opname",
     "inbound",
     "outbound",
+    "retur",
   ],
   finance: ["sales", "receipt", "product", "warehouse", "contact"],
   shipping: ["package", "shipment"],
@@ -264,6 +266,7 @@ function renderSidebar(role) {
           ${createMenuItem("inbound", allMenus.inbound)}
           ${createMenuItem("outbound", allMenus.outbound)}
           ${createMenuItem("mutasi", allMenus.mutasi)}
+          ${createMenuItem("retur", allMenus.retur)}
 
           <!-- OPNAME (DISABLED) -->
           <div class="pointer-events-none opacity-60 text-gray-400">

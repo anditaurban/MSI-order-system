@@ -26,7 +26,7 @@ window.rowTemplate = function (item, index, perPage = 10) {
     <!-- Harga -->
 <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Harga</span>
-      ${formatRupiah(item.cogs || 0)}
+      ${formatRupiah(item.product_value || 0)}
     </td>
 
     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
@@ -39,6 +39,15 @@ window.rowTemplate = function (item, index, perPage = 10) {
       <span class="font-medium sm:hidden">Kategori</span>
       ${item.category || "-"} - (${item.material})
     </td>
+
+    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+  <span class="font-medium sm:hidden">Kemitraan</span>
+  ${
+    item.business_categories && item.business_categories.length > 0
+      ? item.business_categories.map((cat) => cat.business_category).join(", ")
+      : "-"
+  }
+</td>
 
     <!-- Berat -->
     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
@@ -165,7 +174,7 @@ function importData() {
 function handleFileRead(file) {
   if (typeof XLSX === "undefined") {
     return showErrorAlert(
-      "Library XLSX tidak ditemukan. Pastikan sudah di-include."
+      "Library XLSX tidak ditemukan. Pastikan sudah di-include.",
     );
   }
 
@@ -240,7 +249,7 @@ function startImport(data) {
           console.warn(
             `Baris ${
               current + 1
-            }: Format business_category_ids tidak valid, default []`
+            }: Format business_category_ids tidak valid, default []`,
           );
         }
 

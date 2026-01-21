@@ -33,7 +33,7 @@ const formattedDate = `${year}-${month}-${day}`;
 let cashier_id = 0;
 let current_date = formattedDate;
 let nama = "User";
-const picDebounceTimer = { timer: null };
+
 
 const scriptsToLoad = [
   `./assets/js/utils.js`,

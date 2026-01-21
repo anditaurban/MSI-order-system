@@ -73,6 +73,7 @@ const endpointList = [
   "product_return_owner",
   "product_bundling",
   "client",
+  "contact",
   "business_category",
   "employee",
   "product_unit",
@@ -130,7 +131,7 @@ async function checkApiStatus() {
       };
       localStorage.setItem("user_detail", JSON.stringify(userDetailWithExpiry));
       const user_detail = JSON.parse(
-        localStorage.getItem("user_detail") || "{}"
+        localStorage.getItem("user_detail") || "{}",
       );
       const welcomeMessageSpan = document.getElementById("nameUser");
       welcomeMessageSpan.textContent = `Hi, ${user_detail.value.name} 👋`;
@@ -155,11 +156,18 @@ async function fetchData(type, page = 1, id = null, filter = null) {
     let url;
 
     // ----- LOGIKA URL (Sudah Benar) -----
-    if (type === "werehouse_pic" && id !== null) {
-      url = `${baseUrl}/table/werehouse_pic/${id}/${page}?search=${currentDataSearch}`;
-    } else if (type === "vendor_contact" && id !== null) {
+
+    if (type === "contact" && id !== null) {
+      // Logika untuk Contact Client
+      url = `${baseUrl}/table/contact/${id}/${page}?search=${currentDataSearch}`;
+    }
+    // 👇 TAMBAHAN BAGIAN VENDOR CONTACT 👇
+    else if (type === "vendor_contact" && id !== null) {
+      // Logika untuk Vendor Contact (Endpoint mirip contact tapi path-nya vendor_contact)
       url = `${baseUrl}/table/vendor_contact/${id}/${page}?search=${currentDataSearch}`;
-    } else if (id !== null) {
+    }
+    // 👆 BATAS TAMBAHAN 👆
+    else if (id !== null) {
       url = `${endpoints[type].table}/${id}/${page}?search=${currentDataSearch}`;
     } else {
       url = `${endpoints[type].table}/${page}?search=${currentDataSearch}`;
@@ -193,7 +201,7 @@ async function fetchData(type, page = 1, id = null, filter = null) {
       result.totalPages = 1;
 
       console.log(
-        `Fix Applied: Found ${result.listData.length} items, forcing totalRecords to ${result.totalRecords}`
+        `Fix Applied: Found ${result.listData.length} items, forcing totalRecords to ${result.totalRecords}`,
       );
     }
     // ===============================================

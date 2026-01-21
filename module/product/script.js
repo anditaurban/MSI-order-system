@@ -1,5 +1,5 @@
 pagemodule = "Product";
-colSpanCount = 9;
+colSpanCount = 7;
 setDataType("product_werehouse_owner");
 fetchAndUpdateData();
 
@@ -17,21 +17,22 @@ window.rowTemplate = function (item, index, perPage = 10) {
       ${item.productcode || "-"}
     </td>
 
-    <!-- Nama Barang -->
-    <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Barang</span>
-      ${item.product || "-"}
-    </td>
+    <td class="px-6 py-4 text-sm text-gray-700">
+      <div class="grid grid-cols-[100px_auto] gap-x-2 gap-y-1">
+        <span class="font-medium">Nama Barang</span>
+        <span class="text-gray-600">${item.product || "-"}</span>
 
-    <!-- Harga -->
-<td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Harga</span>
-      ${formatRupiah(item.product_value || 0)}
-    </td>
+        <span class="font-medium">Nilai Barang</span>
+        <span class="text-gray-600">${formatRupiah(item.product_value || 0)}</span>
 
-    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">Harga</span>
-      ${formatRupiah(item.sale_price || 0)}
+        <span class="font-medium">Harga Beli</span>
+        <span class="text-gray-600">${formatRupiah(item.cogs || 0)}</span>
+
+        <span class="font-medium">Harga Jual</span>
+        <span class="text-gray-600">${formatRupiah(item.sale_price || 0)}</span>
+
+        
+      </div>
     </td>
 
     <!-- Kategori -->

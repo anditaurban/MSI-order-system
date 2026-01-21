@@ -28,9 +28,6 @@ window.rowTemplate = function (item, index, perPage = 10) {
         <span class="font-medium">Harga Grosir</span>
         <span class="text-gray-600">${formatRupiah(item.wholesale_price || 0)}</span>
 
-        <span class="font-medium">Harga Beli</span>
-        <span class="text-gray-600">${formatRupiah(item.cogs || 0)}</span>
-
         <span class="font-medium">Harga Jual</span>
         <span class="text-gray-600">${formatRupiah(item.sale_price || 0)}</span>
 

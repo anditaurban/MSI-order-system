@@ -38,7 +38,7 @@ window.rowTemplate = function (item, index, perPage = 10) {
 
   <td class="px-6 py-4 text-sm text-center text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
     <span class="font-medium sm:hidden">Qty</span>
-    <span class="font-bold text-purple-600">${finance(item.qty)}</span>
+    <span>${finance(item.qty)}</span>
   </td>
 
   <td class="px-6 py-4 text-sm text-left text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">

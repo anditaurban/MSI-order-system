@@ -57,7 +57,7 @@ function modedev() {
 
 const endpointList = [
   "user",
-  "sales",
+  "sales_msi",
   "sales_unpaid",
   "sales_receipt",
   "sales_package",

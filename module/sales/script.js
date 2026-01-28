@@ -1,6 +1,6 @@
 pagemodule = 'Sales'
 colSpanCount = 9;
-setDataType('sales');
+setDataType('sales_msi');
 fetchAndUpdateData();
 
 document.getElementById('addButton').addEventListener('click', () => {

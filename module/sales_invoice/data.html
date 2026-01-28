@@ -13,10 +13,15 @@
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <button onclick="submitInvoice()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">💾
-          Simpan</button>
-        <button onclick="updateInvoice()"
-          class="hidden bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded">🔄 Update</button>
+        <button id="btnSimpan" onclick="submitInvoice()"
+          class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">
+          💾 Simpan
+        </button>
+
+        <button id="btnUpdate" onclick="updateInvoice()"
+          class="hidden bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded">
+          🔄 Update
+        </button>
         <button onclick="sendWhatsAppInvoice()"
           class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded">
           <!-- Icon WhatsApp -->
@@ -42,49 +47,63 @@
       <!-- Form Section (70%) -->
       <div class="md:col-span-7 bg-white p-6 rounded shadow space-y-6">
         <!-- Form Identitas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 bg-white p-6 rounded shadow-sm border">
+
           <div>
-            <label class="block text-sm font-medium">Tanggal</label>
-            <input type="date" id="tanggal" class="w-full border px-3 py-2 rounded" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+            <input type="date" id="tanggal"
+              class="w-full border px-3 py-2 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
           </div>
           <div>
-            <label class="block text-sm font-medium">Sales</label>
-            <select id="salesman" class="w-full border px-3 py-2 rounded">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Sales</label>
+            <select id="salesman" class="w-full border px-3 py-2 rounded outline-none focus:ring-1 focus:ring-blue-500">
               <option value="">-- Pilih Sales --</option>
             </select>
           </div>
+
           <div class="relative">
-            <input type="hidden" id="contact_id" value="">
-            <label class="block text-sm font-medium">Mitra</label>
-            <input type="text" id="klien" class="w-full border px-3 py-2 rounded" autocomplete="off"
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mitra</label>
+            <input type="text" id="klien" placeholder="Cari Mitra..."
+              class="w-full border px-3 py-2 rounded outline-none focus:ring-1 focus:ring-blue-500" autocomplete="off"
               oninput="filterKlienSuggestions()" />
             <input type="hidden" id="klien_id" />
             <ul id="klienSuggestions"
-              class="absolute z-10 w-full bg-white border rounded mt-1 text-sm shadow hidden max-h-48 overflow-y-auto">
+              class="absolute z-10 w-full bg-white border rounded shadow-md mt-1 hidden max-h-48 overflow-y-auto text-sm">
             </ul>
           </div>
+
           <div>
-            <label class="block text-sm font-medium">Type Order</label>
-            <select id="selectType" class="w-full border px-3 py-2 rounded">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Customer (PIC)</label>
+            <select id="selectPic"
+              class="w-full border px-3 py-2 rounded outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+              <option value="">-- Pilih Customer --</option>
+            </select>
+            <input type="hidden" id="contact_id">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">No Whatsapp</label>
+            <input type="text" id="no_hp" class="w-full border bg-gray-50 px-3 py-2 rounded outline-none" readonly
+              placeholder="Otomatis terisi" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type Order</label>
+            <select id="selectType"
+              class="w-full border px-3 py-2 rounded outline-none focus:ring-1 focus:ring-blue-500">
               <option value="">-- Pilih Type Penjualan --</option>
             </select>
           </div>
+
           <div>
-            <label class="block text-sm font-medium">No Whatsapp</label>
-            <input type="text" id="no_hp" class="w-full border px-3 py-2 rounded" readonly />
+            <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+            <input type="text" id="alamat" class="w-full border bg-gray-50 px-3 py-2 rounded outline-none" readonly
+              placeholder="Otomatis terisi" />
           </div>
           <div>
-            <label class="block text-sm font-medium">Alamat</label>
-            <input type="text" id="alamat" class="w-full border px-3 py-2 rounded" readonly />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Regional</label>
-            <input type="text" id="city" class="w-full border px-3 py-2 rounded" readonly
-              oninput="filterCitySuggestions()" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">Regional</label>
+            <input type="text" id="city" class="w-full border bg-gray-50 px-3 py-2 rounded outline-none" readonly
+              placeholder="Otomatis terisi" />
             <input type="hidden" id="city_id" />
-            <ul id="citySuggestions"
-              class="absolute z-10 w-full bg-white border rounded mt-1 text-sm shadow hidden max-h-48 overflow-y-auto">
-            </ul>
           </div>
         </div>
 

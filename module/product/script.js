@@ -1,6 +1,6 @@
 pagemodule = "Product";
 colSpanCount = 7;
-setDataType("product_werehouse_owner");
+setDataType("product_warehouse_owner");
 fetchAndUpdateData();
 
 window.rowTemplate = function (item, index, perPage = 10) {
@@ -64,7 +64,7 @@ window.rowTemplate = function (item, index, perPage = 10) {
 
     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Kemitraan</span>
-      ${item.werehouse}
+      ${item.warehouse}
     </td>
 
     <!-- Status + Dropdown -->

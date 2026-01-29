@@ -1,7 +1,7 @@
 // Inisialisasi
 pagemodule = "Warehouse";
 colSpanCount = 9;
-setDataType("werehouse");
+setDataType("warehouse");
 fetchAndUpdateData();
 
 window.rowTemplate = function (item, index, perPage = 10) {
@@ -14,10 +14,10 @@ window.rowTemplate = function (item, index, perPage = 10) {
   return `
     <tr class="flex flex-col sm:table-row border rounded sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none transition hover:bg-gray-50">
       <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-        <span class="font-medium sm:hidden">Nama</span>${item.werehouse}
+        <span class="font-medium sm:hidden">Nama</span>${item.warehouse}
       </td>
       <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-        <span class="font-medium sm:hidden">Email</span>${item.werehouse_code}
+        <span class="font-medium sm:hidden">Email</span>${item.warehouse_code}
       </td>
       <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
         <span class="font-medium sm:hidden">Whatsapp</span>${item.phone}
@@ -41,9 +41,9 @@ window.rowTemplate = function (item, index, perPage = 10) {
 
       <div class="dropdown-menu hidden fixed w-48 bg-white border rounded shadow z-50 text-sm">
         <button onclick="event.stopPropagation(); loadModuleContent('warehouse_form', '${
-          item.werehouse_id
+          item.warehouse_id
         }', '${
-    item.werehouse
+    item.warehouse
   }');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">✏️ Edit Contact</button>
         
         
@@ -54,12 +54,12 @@ window.rowTemplate = function (item, index, perPage = 10) {
         
         ${
           isActive
-            ? `<button onclick="toggleProductStatus('${item.werehouse_id}', 'off')" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">🔴 Inactivate</button>`
-            : `<button onclick="toggleProductStatus('${item.werehouse_id}', 'on')" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-green-600">🟢 Activate</button>`
+            ? `<button onclick="toggleProductStatus('${item.warehouse_id}', 'off')" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">🔴 Inactivate</button>`
+            : `<button onclick="toggleProductStatus('${item.warehouse_id}', 'on')" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-green-600">🟢 Activate</button>`
         }
         
         <button onclick="event.stopPropagation(); handleDelete(${
-          item.werehouse_id
+          item.warehouse_id
         })" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">🗑 Delete Contact</button>
       </div>
     </tr>
@@ -85,7 +85,7 @@ function toggleProductStatus(id, newStatus) {
       // Payload disesuaikan: mengirim status_active ('on'/'off')
       const payload = { status_active: newStatus };
 
-      fetch(`${baseUrl}/update/werehouse_status/${id}`, {
+      fetch(`${baseUrl}/update/warehouse_status/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

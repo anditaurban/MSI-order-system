@@ -1,6 +1,6 @@
 pagemodule = "Warehouse";
 colSpanCount = 9;
-setDataType("werehouse_pic");
+setDataType("warehouse_pic");
 
 // --- BAGIAN INISIALISASI (Paling Atas Script) ---
 
@@ -103,7 +103,7 @@ async function loadTipeGudang() {
 
   try {
     // Pastikan owner_id sudah ada nilainya di variable global
-    const url = `${baseUrl}/list/werehouse_type/${owner_id}`;
+    const url = `${baseUrl}/list/warehouse_type/${owner_id}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -120,8 +120,8 @@ async function loadTipeGudang() {
       let options = '<option value="">-- Pilih Tipe --</option>';
 
       result.listData.forEach((item) => {
-        // Value = type_id, Label = werehouse_type
-        options += `<option value="${item.type_id}">${item.werehouse_type}</option>`;
+        // Value = type_id, Label = warehouse_type
+        options += `<option value="${item.type_id}">${item.warehouse_type}</option>`;
       });
 
       select.innerHTML = options;
@@ -145,7 +145,7 @@ async function loadDetail(Id, Detail) {
 
   await loadTipeGudang();
 
-  fetch(`${baseUrl}/detail/werehouse/${Id}?_=${Date.now()}`, {
+  fetch(`${baseUrl}/detail/warehouse/${Id}?_=${Date.now()}`, {
     headers: { Authorization: `Bearer ${API_TOKEN}` },
   })
     .then((res) => res.json())
@@ -153,8 +153,8 @@ async function loadDetail(Id, Detail) {
       console.log("Data Detail:", detail);
 
       // Mapping Standard
-      document.getElementById("formID").value = detail.werehouse_code || "";
-      document.getElementById("formNama").value = detail.werehouse || "";
+      document.getElementById("formID").value = detail.warehouse_code || "";
+      document.getElementById("formNama").value = detail.warehouse || "";
       document.getElementById("formPhone").value = detail.phone || "";
       document.getElementById("formAlamat").value = detail.address || "";
 
@@ -182,7 +182,7 @@ async function loadDetail(Id, Detail) {
               document.getElementById("formProvinsi").value =
                 lastPart.substring(0, lastSpaceIndex);
               document.getElementById("formPOS").value = lastPart.substring(
-                lastSpaceIndex + 1
+                lastSpaceIndex + 1,
               );
             } else {
               document.getElementById("formProvinsi").value = lastPart;
@@ -215,10 +215,10 @@ async function loadKategoriOptions(Id, selectedIds = []) {
 
     // Pisahkan yang terpilih dan tidak terpilih
     const selectedItems = kategoriList.filter((item) =>
-      selectedIds.includes(item.business_category_id)
+      selectedIds.includes(item.business_category_id),
     );
     const unselectedItems = kategoriList.filter(
-      (item) => !selectedIds.includes(item.business_category_id)
+      (item) => !selectedIds.includes(item.business_category_id),
     );
     const sortedList = [...selectedItems, ...unselectedItems];
 
@@ -257,7 +257,7 @@ async function loadKategoriOptions(Id, selectedIds = []) {
 
     function updateSelectedCount() {
       const selected = container.querySelectorAll(
-        'input[name="kategori"]:checked'
+        'input[name="kategori"]:checked',
       ).length;
       countDisplay.textContent = `${selected} kategori dipilih`;
     }
@@ -298,8 +298,8 @@ function getDataPayload() {
     // [BARU] Ambil nilai dari select manual tadi
     type_id: getVal("formType"),
 
-    werehouse: getVal("formNama").toUpperCase(),
-    werehouse_code: getVal("formID"),
+    warehouse: getVal("formNama").toUpperCase(),
+    warehouse_code: getVal("formID"),
     phone: getVal("formPhone"),
     address: getVal("formAlamat"),
     kelurahan: getVal("formKelurahan"),
@@ -310,7 +310,7 @@ function getDataPayload() {
   };
 
   // Validasi
-  if (!payload.werehouse || !payload.werehouse_code || !payload.phone) {
+  if (!payload.warehouse || !payload.warehouse_code || !payload.phone) {
     Swal.fire({
       icon: "warning",
       title: "Data belum lengkap",
@@ -346,7 +346,7 @@ async function submitData(method, id = "") {
   if (!payload) return;
 
   const isCreate = method === "POST";
-  const url = `${baseUrl}/${isCreate ? "add" : "update"}/werehouse${
+  const url = `${baseUrl}/${isCreate ? "add" : "update"}/warehouse${
     id ? "/" + id : ""
   }`;
   const actionText = isCreate ? "menyimpan" : "memperbarui";
@@ -426,7 +426,7 @@ async function searchCity(query) {
 
   try {
     const url = `https://region.katib.cloud/table/region/${owner_id}/1?search=${encodeURIComponent(
-      query
+      query,
     )}`;
     const res = await fetch(url, {
       headers: {
@@ -451,7 +451,7 @@ async function searchCity(query) {
               data-kodepos="${item.kode_pos}"
               data-region_id="${item.region_id}">
               ${item.kelurahan}, ${item.kecamatan}, ${item.kota}, ${item.provinsi} ${item.kode_pos}
-          </li>`
+          </li>`,
           )
           .join("")
       : '<li class="px-3 py-2 text-gray-500">Tidak ditemukan</li>';
@@ -484,7 +484,7 @@ input.addEventListener(
   "input",
   debounce((e) => {
     searchCity(e.target.value);
-  }, 400)
+  }, 400),
 );
 
 // ==========================================
@@ -498,7 +498,7 @@ input.addEventListener(
 formHtml = `
 <form id="dataform" class="space-y-4" autocomplete="off">
   <input type="hidden" name="owner_id" value="${owner_id}">
-  <input type="hidden" name="werehouse_id" id="modal_werehouse_id">
+  <input type="hidden" name="warehouse_id" id="modal_warehouse_id">
   <input type="hidden" name="region_id" id="pic_region_id">
   
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -620,7 +620,7 @@ async function editPicManual(picId) {
 
     // 2. Fetch Data Detail
     // Pastikan URL endpoint ini benar sesuai API kamu
-    const url = `${baseUrl}/detail/werehouse_pic/${picId}`;
+    const url = `${baseUrl}/detail/warehouse_pic/${picId}`;
     console.log("Fetching manual:", url);
 
     const response = await fetch(url, {
@@ -660,7 +660,7 @@ async function editPicManual(picId) {
 
         // Manual get value untuk memastikan akurasi
         return {
-          werehouse_id: document.getElementById("modal_werehouse_id").value,
+          warehouse_id: document.getElementById("modal_warehouse_id").value,
           region_id: document.getElementById("pic_region_id").value,
           name: form.elements["name"].value,
           phone: form.elements["phone"].value,
@@ -684,7 +684,7 @@ async function editPicManual(picId) {
     Swal.fire(
       "Gagal",
       error.message || "Terjadi kesalahan saat mengambil data",
-      "error"
+      "error",
     );
   }
 }
@@ -703,7 +703,7 @@ async function saveUpdatePic(picId, payload) {
   });
 
   try {
-    const url = `${baseUrl}/update/werehouse_pic/${picId}`;
+    const url = `${baseUrl}/update/warehouse_pic/${picId}`;
     const response = await fetch(url, {
       method: "PUT",
       headers: {
@@ -766,7 +766,7 @@ async function updateStatusPic(picId, newStatus) {
       },
     });
 
-    const url = `${baseUrl}/update/werehouse_pic_status/${picId}`;
+    const url = `${baseUrl}/update/warehouse_pic_status/${picId}`;
 
     const response = await fetch(url, {
       method: "PUT",
@@ -819,8 +819,8 @@ async function fillFormData(data) {
   }
 
   // 2. Mapping ID Hidden
-  const wId = document.getElementById("modal_werehouse_id");
-  if (wId) wId.value = pic.werehouse_id || window.detail_id || "";
+  const wId = document.getElementById("modal_warehouse_id");
+  if (wId) wId.value = pic.warehouse_id || window.detail_id || "";
 
   const rId = document.getElementById("pic_region_id");
   if (rId) rId.value = pic.region_id || "";
@@ -897,7 +897,7 @@ function handlePicRegionSearch(query) {
     try {
       // Gunakan API Region yang sama dengan Tab 1
       const url = `https://region.katib.cloud/table/region/${owner_id}/1?search=${encodeURIComponent(
-        query
+        query,
       )}`;
       const res = await fetch(url, {
         headers: {
@@ -921,7 +921,7 @@ function handlePicRegionSearch(query) {
                         data-region_id="${item.region_id}">
                         <strong>${item.kelurahan}</strong>, ${item.kecamatan}, ${item.kota}, ${item.provinsi} (${item.kode_pos})
                     </li>
-                  `
+                  `,
             )
             .join("")
         : '<li class="px-3 py-2 text-gray-500 text-xs">Tidak ditemukan</li>';
@@ -964,14 +964,14 @@ function openPicModal() {
     return;
   }
 
-  // Update formHtml agar modal_werehouse_id terisi ID Gudang saat ini
+  // Update formHtml agar modal_warehouse_id terisi ID Gudang saat ini
   // (Logic ini memastikan value hidden input selalu fresh)
   if (typeof showFormModal === "function") {
     showFormModal(); // Buka modal standar table.js
 
-    // Set value werehouse_id secara manual setelah modal render
+    // Set value warehouse_id secara manual setelah modal render
     setTimeout(() => {
-      const wIdInput = document.getElementById("modal_werehouse_id");
+      const wIdInput = document.getElementById("modal_warehouse_id");
       if (wIdInput) wIdInput.value = window.detail_id;
     }, 100);
   }
@@ -986,11 +986,11 @@ document.querySelectorAll(".tab-link").forEach((btn) => {
       if (!window.detail_id) return;
 
       // --- UBAH KONFIGURASI TABLE.JS KE MODUL PIC ---
-      setDataType("werehouse_pic"); // Endpoint baru
+      setDataType("warehouse_pic"); // Endpoint baru
 
       // Override properti global jika table.js mengizinkan
       // Jika menggunakan sistem module 'table.js' standar, ini akan mengubah endpoint fetch
-      // List URL: {{baseUrl}}/table/werehouse_pic/{werehouseId}/1
+      // List URL: {{baseUrl}}/table/warehouse_pic/{warehouseId}/1
 
       // Panggil fetch data baru dengan ID Gudang sebagai parameter
       if (typeof fetchAndUpdateData === "function") {
@@ -998,7 +998,7 @@ document.querySelectorAll(".tab-link").forEach((btn) => {
       }
     } else {
       // --- KEMBALI KE MODUL GUDANG (Jika user klik tab data) ---
-      // setDataType("werehouse");
+      // setDataType("warehouse");
       // Opsional: jangan reload data gudang jika tidak perlu
     }
   });

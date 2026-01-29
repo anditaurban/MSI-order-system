@@ -60,7 +60,7 @@ const endpointList = [
   "sales_msi",
   "sales_unpaid",
   "sales_receipt",
-  "sales_package",
+  "sales_package_msi",
   "package_slip",
   "sales_shipment",
   "shipment_slip",

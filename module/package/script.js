@@ -1,6 +1,6 @@
 pagemodule = "Package";
 colSpanCount = 9;
-setDataType("sales_package");
+setDataType("sales_package_msi");
 fetchAndUpdateData();
 
 window.rowTemplate = function (item, index, perPage = 10) {
@@ -50,11 +50,18 @@ window.rowTemplate = function (item, index, perPage = 10) {
     <span class="font-medium sm:hidden">PIC</span>  
     ${item.pic_name || ""}
     </td>
+
+    </td>
+  
+     <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <span class="font-medium sm:hidden">PIC</span>  
+    ${item.warehouse || ""}
+    </td>
   
     <td class="px-6 py-4 text-sm text-gray-700 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Status</span>
       <span class="${getStatusClass(
-        item.status_id
+        item.status_id,
       )}  px-2 py-1 rounded-full text-xs font-medium">
         ${item.status}
       </span>      
@@ -67,9 +74,9 @@ ${
    ${
      item.status_id === 1
        ? `
-      <button onclick="event.stopPropagation(); updatePackageStatus('${item.package_id}');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-        📦 Process Packing
-      </button>
+<button onclick="event.stopPropagation(); processPacking('${item.package_id}');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+  📦 Process Packing
+</button>
       `
        : ""
    }
@@ -92,11 +99,7 @@ ${
           : ""
       }
 
-       <button onclick="event.stopPropagation(); loadModuleContent('package_form', '${
-         item.package_id
-       }');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-        🔄 Update Packing
-       </button>
+       
       </div>
  `
     : ""
@@ -104,54 +107,49 @@ ${
   </tr>`;
 };
 
-async function updatePackageStatus(package_id) {
+async function processPacking(package_id) {
   try {
-    // ambil data packageman
-    const resPackageman = await fetch(
-      `${baseUrl}/list/packageman/${owner_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-        },
-      }
-    );
-    const dataPackageman = await resPackageman.json();
+    // 1. Ambil data list warehouse
+    const resWarehouse = await fetch(`${baseUrl}/list/warehouse/${owner_id}`, {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+      },
+    });
+    const dataWarehouse = await resWarehouse.json();
 
-    if (!dataPackageman.listData || dataPackageman.listData.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Tidak ada data",
-        text: "Data packageman belum tersedia.",
-      });
+    if (!dataWarehouse.listData || dataWarehouse.listData.length === 0) {
+      Swal.fire("Peringatan", "Data warehouse tidak ditemukan.", "warning");
       return;
     }
 
-    // mapping ke format { value: 'nama', text: 'nama (role)' }
+    // 2. Mapping data warehouse untuk inputOptions Swal
+    // Format: { 'id': 'Nama Warehouse' }
     const options = {};
-    dataPackageman.listData.forEach((pm) => {
-      options[pm.packageman_id] = `${pm.name} (${pm.role})`;
+    dataWarehouse.listData.forEach((wh) => {
+      options[wh.warehouse_id] = `${wh.warehouse} (${wh.warehouse_code})`;
     });
 
-    // tampilkan swal dengan select
-    const { value: packageman_id } = await Swal.fire({
-      title: "Pilih PIC",
+    // 3. Tampilkan Swal dengan input select
+    const { value: warehouse_id } = await Swal.fire({
+      title: "Pilih Warehouse",
       input: "select",
       inputOptions: options,
-      inputPlaceholder: "Pilih karyawan",
+      inputPlaceholder: "Pilih lokasi gudang",
       showCancelButton: true,
-      confirmButtonText: "Update Status",
+      confirmButtonText: "Proses Sekarang",
+      cancelButtonText: "Batal",
       inputValidator: (value) => {
         if (!value) {
-          return "PIC wajib dipilih!";
+          return "Anda harus memilih warehouse!";
         }
       },
     });
 
-    if (!packageman_id) return;
+    if (!warehouse_id) return; // Jika user klik cancel
 
-    // kirim update
+    // 4. Kirim request ke endpoint update_process_package_warehouse
     const res = await fetch(
-      `${baseUrl}/update/sales_package_status/${package_id}`,
+      `${baseUrl}/update/process_package_warehouse/${package_id}`,
       {
         method: "PUT",
         headers: {
@@ -159,29 +157,26 @@ async function updatePackageStatus(package_id) {
           Authorization: `Bearer ${API_TOKEN}`,
         },
         body: JSON.stringify({
-          packageman_id,
-          status_id: 5,
+          warehouse_id: parseInt(warehouse_id),
         }),
-      }
+      },
     );
 
     const result = await res.json();
+
     if (res.ok) {
       Swal.fire({
         icon: "success",
         title: "Berhasil!",
-        text: "Status paket berhasil diperbarui.",
+        text: "Gudang berhasil ditentukan dan status diperbarui.",
       });
-      fetchAndUpdateData();
+      fetchAndUpdateData(); // Refresh tabel
     } else {
-      throw new Error(result.message || "Gagal memperbarui status.");
+      throw new Error(result.message || "Gagal memproses gudang.");
     }
   } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Gagal",
-      text: error.message,
-    });
+    console.error("Error Process Packing:", error);
+    Swal.fire("Gagal", error.message, "error");
   }
 }
 
@@ -194,7 +189,7 @@ async function printPackingList(package_id) {
         headers: {
           Authorization: `Bearer ${API_TOKEN}`,
         },
-      }
+      },
     );
 
     const result = await response.json();
@@ -252,7 +247,7 @@ async function printPackingList(package_id) {
 function printPDFPackage(package_id) {
   const printWindow = window.open(
     `print_packing_list.html?ids==${package_id}`,
-    "_blank"
+    "_blank",
   );
 }
 
@@ -264,7 +259,7 @@ async function printBulkPackingList() {
         headers: {
           Authorization: `Bearer ${API_TOKEN}`,
         },
-      }
+      },
     );
 
     const result = await res.json();
@@ -274,7 +269,7 @@ async function printBulkPackingList() {
       return Swal.fire(
         "Tidak Ada Data",
         "Semua paket sudah diproses atau tidak ditemukan.",
-        "info"
+        "info",
       );
     }
 
@@ -335,7 +330,7 @@ async function addShipment(package_id) {
           Authorization: `Bearer ${API_TOKEN}`,
         },
         body: JSON.stringify({ status_id: 2, user_id: user_id }),
-      }
+      },
     );
 
     const result = await response.json();

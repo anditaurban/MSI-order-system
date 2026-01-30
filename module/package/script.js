@@ -89,15 +89,6 @@ ${
        `
           : ""
       }
-      ${
-        item.status_id === 5
-          ? `
-      <button onclick="event.stopPropagation(); addShipment('${item.package_id}');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-        🚚 Process Shipping
-      </button>
-       `
-          : ""
-      }
 
        
       </div>

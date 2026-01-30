@@ -66,6 +66,7 @@ const endpointList = [
   "shipment_slip",
   "shipment_label",
   "product",
+  "sales_shipment_msi",
   "product_inbound_owner",
   "product_outbound_owner",
   "product_mutation_owner",

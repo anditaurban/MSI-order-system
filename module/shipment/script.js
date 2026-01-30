@@ -1,58 +1,59 @@
-pagemodule = 'Shipment';
+pagemodule = "Shipment";
 colSpanCount = 9;
-setDataType('sales_shipment');
+setDataType("sales_shipment_msi");
 fetchAndUpdateData();
 
 function validateFormData(formData, requiredFields = []) {
-  console.log('Validasi Form');
+  console.log("Validasi Form");
   for (const { field, message } of requiredFields) {
-    if (!formData[field] || formData[field].trim() === '') {
+    if (!formData[field] || formData[field].trim() === "") {
       alert(message);
       return false;
     }
   }
   return true;
-} 
+}
 
 async function fillFormData(data) {
-    // Helper untuk menunggu sampai <option> tersedia
-    async function waitForOption(selectId, expectedValue, timeout = 3000) {
-      return new Promise((resolve) => {
-        const interval = 100;
-        let waited = 0;
-  
-        const check = () => {
-          const select = document.getElementById(selectId);
-          const exists = Array.from(select.options).some(opt => opt.value === expectedValue?.toString());
-          if (exists || waited >= timeout) {
-            resolve();
-          } else {
-            waited += interval;
-            setTimeout(check, interval);
-          }
-        };
-  
-        check();
-      });
-    }
-  
-    // Pastikan value bertipe string
-    const typeValue = data.type_id?.toString() || '';
-    await waitForOption('formType', typeValue);
-    const formType = document.getElementById('formType');
-    formType.value = typeValue;
-  
-    document.getElementById('formNama').value = data.nama || '';
-    document.getElementById('formAlias').value = data.alias || '';
-    document.getElementById('formPhone').value = data.phone || '';
-    document.getElementById('formWA').value = data.whatsapp || '';
-    document.getElementById('formEmail').value = data.email || '';
-    document.getElementById('formNpwp').value = data.no_npwp || '';
-    document.getElementById('formWeb').value = data.website || '';
-    document.getElementById('formCity').value = data.city_name || '';
-    document.getElementById('formAlamat').value = data.alamat || '';
+  // Helper untuk menunggu sampai <option> tersedia
+  async function waitForOption(selectId, expectedValue, timeout = 3000) {
+    return new Promise((resolve) => {
+      const interval = 100;
+      let waited = 0;
+
+      const check = () => {
+        const select = document.getElementById(selectId);
+        const exists = Array.from(select.options).some(
+          (opt) => opt.value === expectedValue?.toString(),
+        );
+        if (exists || waited >= timeout) {
+          resolve();
+        } else {
+          waited += interval;
+          setTimeout(check, interval);
+        }
+      };
+
+      check();
+    });
   }
 
+  // Pastikan value bertipe string
+  const typeValue = data.type_id?.toString() || "";
+  await waitForOption("formType", typeValue);
+  const formType = document.getElementById("formType");
+  formType.value = typeValue;
+
+  document.getElementById("formNama").value = data.nama || "";
+  document.getElementById("formAlias").value = data.alias || "";
+  document.getElementById("formPhone").value = data.phone || "";
+  document.getElementById("formWA").value = data.whatsapp || "";
+  document.getElementById("formEmail").value = data.email || "";
+  document.getElementById("formNpwp").value = data.no_npwp || "";
+  document.getElementById("formWeb").value = data.website || "";
+  document.getElementById("formCity").value = data.city_name || "";
+  document.getElementById("formAlamat").value = data.alamat || "";
+}
 
 async function loadDropdown(selectId, apiUrl, valueField, labelField) {
   const select = document.getElementById(selectId);
@@ -60,11 +61,11 @@ async function loadDropdown(selectId, apiUrl, valueField, labelField) {
 
   try {
     const response = await fetch(apiUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
     });
 
     const result = await response.json();
@@ -74,16 +75,15 @@ async function loadDropdown(selectId, apiUrl, valueField, labelField) {
     select.innerHTML = `<option value="">Pilih...</option>`;
 
     if (Array.isArray(listData)) {
-      listData.forEach(item => {
-        const option = document.createElement('option');
+      listData.forEach((item) => {
+        const option = document.createElement("option");
         option.value = item[valueField];
         option.textContent = item[labelField];
         select.appendChild(option);
       });
     } else {
-      console.error('Format listData tidak sesuai:', listData);
+      console.error("Format listData tidak sesuai:", listData);
     }
-
   } catch (error) {
     console.error(`Gagal memuat data untuk ${selectId}:`, error);
     select.innerHTML = `<option value="">Gagal memuat data</option>`;
@@ -91,15 +91,19 @@ async function loadDropdown(selectId, apiUrl, valueField, labelField) {
 }
 
 function loadDropdownCall() {
-  loadDropdown('formProject', `${baseUrl}/list/client_type/${owner_id}`, 'type_id', 'type');
-} 
+  loadDropdown(
+    "formProject",
+    `${baseUrl}/list/client_type/${owner_id}`,
+    "type_id",
+    "type",
+  );
+}
 
+window.rowTemplate = function (item, index, perPage = 10) {
+  const { currentPage } = state[currentDataType];
+  const globalIndex = (currentPage - 1) * perPage + index + 1;
 
-  window.rowTemplate = function (item, index, perPage = 10) {
-    const { currentPage } = state[currentDataType];
-    const globalIndex = (currentPage - 1) * perPage + index + 1;
-  
-    return `
+  return `
   <tr class="flex flex-col sm:table-row border rounded sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none transition hover:bg-gray-50">  
      <td class="px-6 py-4 text-sm border-b sm:border-0 flex justify-between sm:table-cell bg-gray-800 text-white sm:bg-transparent sm:text-gray-700">
     <span class="font-medium sm:hidden">Tanggal</span>  
@@ -147,8 +151,8 @@ function loadDropdownCall() {
       ${item.courier_note}
     </td>
     <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
-      <span class="font-medium sm:hidden">PIC</span>
-      ${item.pic_name}
+      <span class="font-medium sm:hidden">Gudang</span>
+      ${item.warehouse}
     </td>
   
     <td class="px-6 py-4 text-sm text-gray-700 flex justify-between sm:table-cell">
@@ -159,17 +163,15 @@ function loadDropdownCall() {
     </td>
           <div class="dropdown-menu hidden fixed w-48 bg-white border rounded shadow z-50 text-sm">
 
-        <button onclick="event.stopPropagation(); showShipmentUpdateForm('${item.shipment_id}', '${item.no_inv}', '${item.no_package}', '${item.courier_id}', '${item.courier_note}');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-          📝 Input Resi
-        </button>
+        
         <button onclick="event.stopPropagation(); printShippingLabel('${item.shipment_id}');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">
           🖨️ Print Shipping Label
         </button>
       </div>
   </tr>`;
-  };
+};
 
-  formHtml = `
+formHtml = `
 <form id="dataform" class="space-y-2">
 
   <label for="formNama" class="block text-sm font-medium text-gray-700 dark:text-gray-200 text-left">Contact Name</label>
@@ -207,29 +209,29 @@ function loadDropdownCall() {
   <input id="formAlamat" name="alamat" type="text" class="form-control w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
 </form>
 
-  `
+  `;
 requiredFields = [
-    { field: 'formProject', message: 'Project Name is required!' },
-    { field: 'formPM', message: 'Project Manager is required!' },
-    { field: 'formStartDate', message: 'Starting Date is required!' },
-    { field: 'formDeadline', message: 'Deadline is required!' }
-  ];  
+  { field: "formProject", message: "Project Name is required!" },
+  { field: "formPM", message: "Project Manager is required!" },
+  { field: "formStartDate", message: "Starting Date is required!" },
+  { field: "formDeadline", message: "Deadline is required!" },
+];
 
 function printShippingLabel(shipment_id) {
   Swal.fire({
-    title: 'Cetak Label Pengiriman',
-    text: 'Pilih metode pencetakan label:',
+    title: "Cetak Label Pengiriman",
+    text: "Pilih metode pencetakan label:",
     showCancelButton: true,
     showConfirmButton: false,
-    confirmButtonText: 'Download PDF',
-    cancelButtonText: 'Print (Langsung)',
-    reverseButtons: true
+    confirmButtonText: "Download PDF",
+    cancelButtonText: "Print (Langsung)",
+    reverseButtons: true,
   }).then((result) => {
     if (result.isConfirmed) {
       // === Download PDF ===
       Swal.fire({
-        title: 'Menyiapkan PDF...',
-        html: 'Silakan tunggu, file akan terunduh otomatis.',
+        title: "Menyiapkan PDF...",
+        html: "Silakan tunggu, file akan terunduh otomatis.",
         allowOutsideClick: false,
         allowEscapeKey: false,
         didOpen: () => {
@@ -246,24 +248,27 @@ function printShippingLabel(shipment_id) {
           // Tunggu 3 detik lalu tampilkan notifikasi selesai
           setTimeout(() => {
             Swal.close();
-            Swal.fire('Berhasil', 'Label berhasil diunduh sebagai PDF.', 'success');
+            Swal.fire(
+              "Berhasil",
+              "Label berhasil diunduh sebagai PDF.",
+              "success",
+            );
           }, 3000);
-        }
+        },
       });
     } else if (result.dismiss === Swal.DismissReason.cancel) {
       // === Langsung Print (buka tab baru) ===
-      window.open(`print_shipping_label.html?ids=${shipment_id}`, '_blank');
+      window.open(`print_shipping_label.html?ids=${shipment_id}`, "_blank");
     }
   });
 }
-
 
 async function showShipmentUpdateForm(
   shipment_id = null,
   no_inv = null,
   no_package = null,
   courier_id = null,
-  courier_note = null
+  courier_note = null,
 ) {
   try {
     let shipmentList = [];
@@ -271,8 +276,8 @@ async function showShipmentUpdateForm(
     // Ambil daftar kurir dari API
     const courierRes = await fetch(`${baseUrl}/list/courier/${owner_id}`, {
       headers: {
-        'Authorization': `Bearer ${API_TOKEN}`
-      }
+        Authorization: `Bearer ${API_TOKEN}`,
+      },
     });
     const courierJson = await courierRes.json();
     const couriers = courierJson?.listData || [];
@@ -282,45 +287,56 @@ async function showShipmentUpdateForm(
         shipment_id,
         no_package,
         no_inv,
-        courier_id: courier_id ?? '',
-        courier_note: courier_note ?? '',
-        shipment_receipt: '',
-        date: new Date().toISOString().split('T')[0]
+        courier_id: courier_id ?? "",
+        courier_note: courier_note ?? "",
+        shipment_receipt: "",
+        date: new Date().toISOString().split("T")[0],
       });
     } else {
-      const res = await fetch(`${baseUrl}/counting/sales_package_unshipped/${owner_id}`, {
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`
-        }
-      });
+      const res = await fetch(
+        `${baseUrl}/counting/sales_package_unshipped/${owner_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        },
+      );
       const result = await res.json();
       const countData = result?.countData;
 
-      if (!countData || !countData.shipments || countData.shipments.length === 0) {
-        return Swal.fire('Info', 'Tidak ada shipment yang perlu diupdate.', 'info');
+      if (
+        !countData ||
+        !countData.shipments ||
+        countData.shipments.length === 0
+      ) {
+        return Swal.fire(
+          "Info",
+          "Tidak ada shipment yang perlu diupdate.",
+          "info",
+        );
       }
 
-      shipmentList = countData.shipments.map(s => ({
+      shipmentList = countData.shipments.map((s) => ({
         shipment_id: s.shipment_id,
         no_package: s.no_package,
         no_inv: s.no_inv,
-        courier_id: '',
-        courier_note: '',
-        shipment_receipt: '',
-        date: new Date().toISOString().split('T')[0]
+        courier_id: "",
+        courier_note: "",
+        shipment_receipt: "",
+        date: new Date().toISOString().split("T")[0],
       }));
-
-      
     }
 
     // Generate form HTML
     let formHtml = `<form id="dataform" class="space-y-4 text-left text-sm text-gray-700 dark:text-gray-200">`;
 
     shipmentList.forEach((s, i) => {
-      const courierOptions = couriers.map(c => {
-        const selected = c.courier_id == s.courier_id ? 'selected' : '';
-        return `<option value="${c.courier_id}" ${selected}>${c.courier}</option>`;
-      }).join('');
+      const courierOptions = couriers
+        .map((c) => {
+          const selected = c.courier_id == s.courier_id ? "selected" : "";
+          return `<option value="${c.courier_id}" ${selected}>${c.courier}</option>`;
+        })
+        .join("");
 
       formHtml += `
         <div class="border border-gray-300 dark:border-gray-600 p-3 rounded-md">
@@ -340,13 +356,13 @@ async function showShipmentUpdateForm(
           <!-- Catatan Kurir -->
           <label for="note_${i}" class="block mt-3 mb-1">Catatan Kurir</label>
           <input id="note_${i}" type="text" placeholder="Contoh: Taruh di pos satpam"
-            value="${s.courier_note || ''}"
+            value="${s.courier_note || ""}"
             class="form-control w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white" />
 
           <!-- Nomor Resi -->
           <label for="resi_${i}" class="block mt-3 mb-1">Nomor Resi</label>
           <input id="resi_${i}" type="text" placeholder="No. Resi"
-            value="${s.shipment_receipt || ''}"
+            value="${s.shipment_receipt || ""}"
             class="form-control w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white" />
         </div>
       `;
@@ -355,63 +371,71 @@ async function showShipmentUpdateForm(
     formHtml += `</form>`;
 
     const { isConfirmed } = await Swal.fire({
-      title: 'Input Pengiriman',
+      title: "Input Pengiriman",
       html: formHtml,
-      confirmButtonText: 'Update Shipment',
+      confirmButtonText: "Update Shipment",
       width: 600,
       focusConfirm: false,
       preConfirm: () => {
         shipmentList.forEach((s, i) => {
-          s.courier_id = parseInt(document.getElementById(`courier_${i}`).value) || null;
-          s.courier_note = String(document.getElementById(`note_${i}`).value || '-');
-          s.shipment_receipt = String(document.getElementById(`resi_${i}`).value || '-');
+          s.courier_id =
+            parseInt(document.getElementById(`courier_${i}`).value) || null;
+          s.courier_note = String(
+            document.getElementById(`note_${i}`).value || "-",
+          );
+          s.shipment_receipt = String(
+            document.getElementById(`resi_${i}`).value || "-",
+          );
         });
-      }
+      },
     });
 
     console.log(shipmentList);
 
     if (isConfirmed) {
-      updateBulkShipment(shipmentList.map(s => ({
-        user_id: owner_id,
-        courier_id: s.courier_id,
-        courier_note: s.courier_note,
-        shipment_receipt: s.shipment_receipt,
-        shipment_id: s.shipment_id
-      })));
+      updateBulkShipment(
+        shipmentList.map((s) => ({
+          user_id: owner_id,
+          courier_id: s.courier_id,
+          courier_note: s.courier_note,
+          shipment_receipt: s.shipment_receipt,
+          shipment_id: s.shipment_id,
+        })),
+      );
     }
-
   } catch (err) {
     console.error(err);
-    Swal.fire('Error', 'Gagal mengambil data shipment atau courier.', 'error');
+    Swal.fire("Error", "Gagal mengambil data shipment atau courier.", "error");
   }
 }
-
-
-
 
 async function updateBulkShipment(shipmentList) {
   try {
     const promises = shipmentList.map(async (s) => {
-      const response = await fetch(`${baseUrl}/update/sales_shipment/${s.shipment_id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `${baseUrl}/update/sales_shipment/${s.shipment_id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            courier: s.courier,
+            courier_id: s.courier_id,
+            courier_note: s.courier_note,
+            shipment_receipt: s.shipment_receipt,
+            user_id: user_id,
+          }),
         },
-        body: JSON.stringify({
-          courier: s.courier,
-          courier_id: s.courier_id,
-          courier_note: s.courier_note,
-          shipment_receipt: s.shipment_receipt,
-          user_id: user_id
-        })
-      });
+      );
 
       const result = await response.json();
 
       if (!result?.data?.success) {
-        throw new Error(`Gagal update shipment ID ${s.shipment_id}: ${result?.data?.message || 'Unknown error'}`);
+        throw new Error(
+          `Gagal update shipment ID ${s.shipment_id}: ${result?.data?.message || "Unknown error"}`,
+        );
       }
 
       return result.data;
@@ -420,26 +444,24 @@ async function updateBulkShipment(shipmentList) {
     const results = await Promise.all(promises);
 
     Swal.fire({
-      title: 'Berhasil!',
+      title: "Berhasil!",
       text: `${results.length} shipment berhasil diperbarui.`,
-      icon: 'success'
+      icon: "success",
     });
     fetchAndUpdateData();
-
   } catch (error) {
     console.error(error);
-    Swal.fire('Error', error.message, 'error');
+    Swal.fire("Error", error.message, "error");
   }
 }
 
-
 function promptPrintCombinedPDF(shipmentIds) {
   Swal.fire({
-    title: 'Cetak Semua Label?',
-    text: 'Ingin menggabungkan semua label dalam satu file PDF?',
+    title: "Cetak Semua Label?",
+    text: "Ingin menggabungkan semua label dalam satu file PDF?",
     showCancelButton: true,
-    confirmButtonText: 'Gabung & Download',
-    cancelButtonText: 'Nanti Saja'
+    confirmButtonText: "Gabung & Download",
+    cancelButtonText: "Nanti Saja",
   }).then((result) => {
     if (result.isConfirmed) {
       printCombinedShippingLabels(shipmentIds);
@@ -448,12 +470,6 @@ function promptPrintCombinedPDF(shipmentIds) {
 }
 
 function printCombinedShippingLabels(shipmentIds) {
-  const param = shipmentIds.join(',');
-  window.open(`/print/shipping_label_combined.html?ids=${param}`, '_blank');
+  const param = shipmentIds.join(",");
+  window.open(`/print/shipping_label_combined.html?ids=${param}`, "_blank");
 }
-
-
-
-
-
-

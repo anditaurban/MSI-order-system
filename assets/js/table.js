@@ -58,7 +58,7 @@ async function fetchAndUpdateData(id = null, filter = "") {
       currentDataType,
       state[currentDataType].currentPage,
       id,
-      filter
+      filter,
     );
     if (!response || !response.tableData)
       throw new Error("Invalid response from the API");
@@ -95,7 +95,7 @@ function showLoadingSpinner(tableBody) {
 }
 
 const statusClassMap = {
-  sales: {
+  sales_msi: {
     1: "bg-blue-100 text-blue-800", //Diproses
     2: "bg-red-100 text-red-800", //Menunggu Pembayaran
     3: "bg-green-100 text-green-800", //Pembayaran Lunas
@@ -110,14 +110,14 @@ const statusClassMap = {
     2: "bg-green-100 text-green-800", //Valid
     3: "bg-red-100 text-red-800", //Tidak Valid"
   },
-  sales_package: {
+  sales_package_msi: {
     1: "bg-red-100 text-red-800", //Menunggu Pengepakan
     2: "bg-blue-100 text-blue-800", //Paket Siap
     3: "bg-green-100 text-green-800", //Diproses
     4: "bg-blue-100 text-blue-800", //Paket Dikirim
     5: "bg-yellow-100 text-yellow-800", //Sedang Dipack
   },
-  sales_shipment: {
+  sales_shipment_msi: {
     1: "bg-red-100 text-red-800", //Menunggu Kurir"
     2: "bg-green-100 text-green-800", //Paket Dikirim
   },
@@ -170,7 +170,7 @@ function loadData() {
         "hover:bg-gray-50",
         "cursor-pointer",
         "transition",
-        "relative"
+        "relative",
       );
       row.onclick = function (e) {
         toggleDropdown(this, e);
@@ -228,12 +228,12 @@ function updatePagination(paginationContainer, onPageChange) {
   }
 
   nav.appendChild(
-    createButton("« First", currentPage === 1, () => onPageChange(1))
+    createButton("« First", currentPage === 1, () => onPageChange(1)),
   );
   nav.appendChild(
     createButton("‹ Prev", currentPage === 1, () =>
-      onPageChange(currentPage - 1)
-    )
+      onPageChange(currentPage - 1),
+    ),
   );
 
   const startPage = Math.max(1, currentPage - 2);
@@ -249,13 +249,13 @@ function updatePagination(paginationContainer, onPageChange) {
 
   nav.appendChild(
     createButton("Next ›", currentPage === totalPages, () =>
-      onPageChange(currentPage + 1)
-    )
+      onPageChange(currentPage + 1),
+    ),
   );
   nav.appendChild(
     createButton("Last »", currentPage === totalPages, () =>
-      onPageChange(totalPages)
-    )
+      onPageChange(totalPages),
+    ),
   );
 
   wrapper.appendChild(nav);
@@ -489,7 +489,7 @@ function handleDelete(id) {
         .then((response) => response.json())
         .then((data) => handleDeleteResponse(data))
         .catch(() =>
-          showErrorAlert("Failed to delete data. Please try again.")
+          showErrorAlert("Failed to delete data. Please try again."),
         );
     }
   });
@@ -549,7 +549,7 @@ async function handleEdit(Id, Data, tab) {
         Swal.showLoading();
 
         const fileInput = document.querySelector(
-          '#dataformfile input[type="file"]'
+          '#dataformfile input[type="file"]',
         );
         const fileText = document.querySelector("#file_text");
 
@@ -572,7 +572,7 @@ async function handleEdit(Id, Data, tab) {
 
         //Set the file input label to the existing image name
         const fileInput = document.querySelector(
-          '#dataformfile input[type="file"]'
+          '#dataformfile input[type="file"]',
         );
         const fileText = document.querySelector("#file_text");
 
@@ -699,7 +699,7 @@ async function exportData() {
       const totalPages = data.totalPages || 1;
 
       console.log(
-        `📌 Halaman ${page} berisi ${tableData.length} data (totalPages=${totalPages})`
+        `📌 Halaman ${page} berisi ${tableData.length} data (totalPages=${totalPages})`,
       );
 
       if (tableData.length === 0) break;

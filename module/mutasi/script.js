@@ -39,12 +39,12 @@ window.rowTemplate = function (item, index, perPage = 10) {
 
     <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
     <span class="font-medium sm:hidden">Barang</span>  
-    ${item.werehouse_destination || "-"}
+    ${item.warehouse_destination || "-"}
     </td>
 
     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Kemitraan</span>
-      ${item.werehouse_source}
+      ${item.warehouse_source}
     </td>
 
   </tr>`;
@@ -139,7 +139,7 @@ function importData() {
 function handleFileRead(file) {
   if (typeof XLSX === "undefined") {
     return showErrorAlert(
-      "Library XLSX tidak ditemukan. Pastikan sudah di-include."
+      "Library XLSX tidak ditemukan. Pastikan sudah di-include.",
     );
   }
 
@@ -214,7 +214,7 @@ function startImport(data) {
           console.warn(
             `Baris ${
               current + 1
-            }: Format business_category_ids tidak valid, default []`
+            }: Format business_category_ids tidak valid, default []`,
           );
         }
 

@@ -234,7 +234,7 @@ function renderSidebar(role) {
   if (role === "superadmin") {
     menuContainer.innerHTML = `
       <!-- DASHBOARD (DISABLED) -->
-      <div class="pointer-events-none opacity-60 text-gray-400">
+      <div>
         ${createMenuItem("dashboard", allMenus.dashboard)}
       </div>
 

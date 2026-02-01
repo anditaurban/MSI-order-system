@@ -21,7 +21,7 @@ window.rowTemplate = function (item, index, perPage = 10) {
     </td>
 
   
-    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <td class="px-6 py-4 text-sm text-left text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Harga</span>
       ${item.product}
     </td>
@@ -36,24 +36,24 @@ window.rowTemplate = function (item, index, perPage = 10) {
     ${formatRupiah(item.unit_price)}
     </td>
   
-     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+     <td class="px-6 py-4 text-sm text-left text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
     <span class="font-medium sm:hidden">Stok</span>  
     ${finance(item.qty)}
     </td>
   
-     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+     <td class="px-6 py-4 text-sm text-left text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
     <span class="font-medium sm:hidden">Kemitraan</span>  
     ${item.notes}
 
     </td>
-     <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+     <td class="px-6 py-4 text-sm text-left text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
     <span class="font-medium sm:hidden">Stok</span>  
     ${item.aging_text}
     </td>
 
-    <td class="px-6 py-4 text-sm text-right text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <td class="px-6 py-4 text-sm text-left text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Kemitraan</span>
-      ${item.werehouse}
+      ${item.warehouse}
     </td>
   </tr>`;
 };
@@ -147,7 +147,7 @@ function importData() {
 function handleFileRead(file) {
   if (typeof XLSX === "undefined") {
     return showErrorAlert(
-      "Library XLSX tidak ditemukan. Pastikan sudah di-include."
+      "Library XLSX tidak ditemukan. Pastikan sudah di-include.",
     );
   }
 
@@ -222,7 +222,7 @@ function startImport(data) {
           console.warn(
             `Baris ${
               current + 1
-            }: Format business_category_ids tidak valid, default []`
+            }: Format business_category_ids tidak valid, default []`,
           );
         }
 

@@ -58,7 +58,24 @@ window.rowTemplate = function (item, index, perPage = 10) {
         ${item.status === "Active" ? "Active" : "Inactive"}
       </span>
       </td>
-      
+      <div class="dropdown-menu hidden fixed w-48 bg-white border rounded shadow z-50 text-sm">
+        <button onclick="event.stopPropagation(); loadModuleContent('contact_form', '${
+          item.pelanggan_id
+        }', '${
+          item.nama
+        }');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">✏️ Edit Contact</button>
+        
+        <button onclick="event.stopPropagation(); openWhatsAppChat(${
+          item.whatsapp
+        })" class="block w-full text-left px-4 py-2 hover:bg-gray-100">💬 Chat via WA</button>${
+          item.status === "Active"
+            ? `<button onclick="toggleProductStatus('${item.pelanggan_id}', '2')" class="block w-full text-left px-4 py-2 hover:bg-gray-100">🔴 Inactivate Product</button>`
+            : `<button onclick="toggleProductStatus('${item.pelanggan_id}', '1')" class="tblock w-full text-left px-4 py-2 hover:bg-gray-100">🟢 Activate Product</button>`
+        }
+        <button onclick="event.stopPropagation(); handleDelete(${
+          item.pelanggan_id
+        })" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">🗑 Delete Contact</button>
+      </div>
     </tr>
   `;
 };

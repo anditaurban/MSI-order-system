@@ -64,6 +64,11 @@ window.rowTemplate = function (item, index, perPage = 10) {
         }', '${
           item.nama
         }');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">✏️ Edit Contact</button>
+        <button onclick="event.stopPropagation(); loadModuleContent('contact_detail', '${
+          item.pelanggan_id
+        }', '${
+          item.nama
+        }');" class="block w-full text-left px-4 py-2 hover:bg-gray-100">👀 View Detail</button>
         
         <button onclick="event.stopPropagation(); openWhatsAppChat(${
           item.whatsapp

@@ -34,7 +34,7 @@ async function loadCustomerList() {
 }
 
 async function loadProdukList(customer_id) {
-  const res = await fetch(`${baseUrl}/list/product_sales/${customer_id}`, {
+  const res = await fetch(`${baseUrl}/list/product_sales_msi/${customer_id}`, {
     headers: { Authorization: `Bearer ${API_TOKEN}` },
   });
   const json = await res.json();

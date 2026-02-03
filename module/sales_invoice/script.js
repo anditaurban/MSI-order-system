@@ -16,18 +16,25 @@ if (window.detail_id && window.detail_desc) {
   // loadProdukList();
 }
 
-async function loadCustomerList() {
+async function loadCustomerList(currentPage = 1) {
+  // Menambahkan default value 1
   try {
-    // Memanggil endpoint table dengan parameter search kosong agar semua data terambil di awal
-    const res = await fetch(`${baseUrl}/table/client/${owner_id}/1?search=`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-    });
+    // Menggunakan template literal untuk memasukkan variabel currentPage
+    const res = await fetch(
+      `${baseUrl}/table/client/${owner_id}/${currentPage}?search=`,
+      {
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      },
+    );
 
     const json = await res.json();
 
     // Sesuaikan akses ke properti 'tableData' sesuai response yang Anda kirim
     customerList = json.tableData || [];
-    console.log("Data Mitra Berhasil Dimuat:", customerList);
+    console.log(
+      `Data Mitra Halaman ${currentPage} Berhasil Dimuat:`,
+      customerList,
+    );
   } catch (err) {
     console.error("Gagal memuat data mitra:", err);
   }
@@ -65,44 +72,71 @@ async function loadEmployeeList() {
   }
 }
 
-function filterKlienSuggestions() {
-  const input = document.getElementById("klien").value.toLowerCase();
+// Variabel untuk mencegah request bertabrakan (debounce)
+
+
+async function filterKlienSuggestions() {
+  const input = document.getElementById("klien").value.toLowerCase().trim();
   const suggestionBox = document.getElementById("klienSuggestions");
-  suggestionBox.innerHTML = "";
 
-  if (input.length < 2) return suggestionBox.classList.add("hidden");
+  // Bersihkan timeout lama
+  clearTimeout(searchTimeout);
 
-  const filtered = customerList.filter(
-    (c) => c.nama && c.nama.toLowerCase().includes(input),
-  );
+  if (input.length < 2) {
+    suggestionBox.innerHTML = "";
+    suggestionBox.classList.add("hidden");
+    return;
+  }
 
-  filtered.forEach((item) => {
-    const li = document.createElement("li");
-    li.textContent = `${item.nama} (${item.no_membership})`;
-    li.className =
-      "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
+  // Gunakan debounce agar tidak nembak API setiap huruf (hemat kuota)
+  searchTimeout = setTimeout(async () => {
+    try {
+      // PANGGIL API DENGAN PARAMETER SEARCH
+      // Kita panggil page 1 tapi dengan query search yang diisi input user
+      const res = await fetch(
+        `${baseUrl}/table/client/${owner_id}/1?search=${input}`,
+        {
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+        },
+      );
 
-    li.onclick = () => {
-      // 1. Set Identitas Mitra
-      document.getElementById("klien").value = item.nama;
-      document.getElementById("klien_id").value = item.pelanggan_id;
+      const json = await res.json();
+      const results = json.tableData || [];
 
-      // 2. REVISI: Isi data dari Mitra langsung (Bukan dari PIC)
-      document.getElementById("no_hp").value = item.whatsapp || "";
-      document.getElementById("alamat").value = item.alamat || "";
-      document.getElementById("city").value = item.region_name || "";
-      document.getElementById("city_id").value = item.region_id || "";
+      if (results.length === 0) {
+        suggestionBox.innerHTML = "";
+        suggestionBox.classList.add("hidden");
+        return;
+      }
 
-      // 3. Load daftar PIC ke dropdown samping (tapi tidak merubah alamat saat dipilih)
-      loadPicToSelect(item.customer_pic, item);
+      // Render hasil pencarian dari API
+      suggestionBox.innerHTML = "";
+      results.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `${item.nama} (${item.no_membership})`;
+        li.className =
+          "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
 
-      suggestionBox.classList.add("hidden");
-    };
-    suggestionBox.appendChild(li);
-  });
-  suggestionBox.classList.remove("hidden");
+        li.onclick = () => {
+          document.getElementById("klien").value = item.nama;
+          document.getElementById("klien_id").value = item.pelanggan_id;
+          document.getElementById("no_hp").value = item.whatsapp || "";
+          document.getElementById("alamat").value = item.alamat || "";
+          document.getElementById("city").value = item.region_name || "";
+          document.getElementById("city_id").value = item.region_id || "";
+
+          loadPicToSelect(item.customer_pic, item);
+          suggestionBox.classList.add("hidden");
+        };
+        suggestionBox.appendChild(li);
+      });
+
+      suggestionBox.classList.remove("hidden");
+    } catch (err) {
+      console.error("Gagal search mitra:", err);
+    }
+  }, 500); // Tunggu 500ms setelah user berhenti mengetik
 }
-
 function loadPicToSelect(picList, parentData) {
   const picSelect = document.getElementById("selectPic");
   picSelect.innerHTML = '<option value="">-- Pilih Customer (PIC) --</option>';

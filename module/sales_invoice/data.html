@@ -61,14 +61,14 @@
             </select>
           </div>
 
-          <div class="relative">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Mitra</label>
+          <div class="relative" style="isolation: isolate;"> <label
+              class="block text-sm font-medium text-gray-700 mb-1">Mitra</label>
             <input type="text" id="klien" placeholder="Cari Mitra..."
-              class="w-full border px-3 py-2 rounded outline-none focus:ring-1 focus:ring-blue-500" autocomplete="off"
-              oninput="filterKlienSuggestions()" />
+              class="w-full border px-3 py-2 rounded outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+              autocomplete="off" oninput="filterKlienSuggestions()" />
             <input type="hidden" id="klien_id" />
             <ul id="klienSuggestions"
-              class="absolute z-10 w-full bg-white border rounded shadow-md mt-1 hidden max-h-48 overflow-y-auto text-sm">
+              class="absolute left-0 right-0 z-[9999] bg-white border border-gray-300 rounded shadow-2xl mt-1 hidden max-h-60 overflow-y-auto text-sm">
             </ul>
           </div>
 

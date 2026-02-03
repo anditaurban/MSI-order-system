@@ -33,7 +33,8 @@ const formattedDate = `${year}-${month}-${day}`;
 let cashier_id = 0;
 let current_date = formattedDate;
 let nama = "User";
-
+let pelangganList = [];
+let searchTimeout;
 
 const scriptsToLoad = [
   `./assets/js/utils.js`,
@@ -94,7 +95,7 @@ function loadScript(src, callback) {
 }
 
 scriptsToLoad.forEach((script) =>
-  loadScript(`${script}?v=${new Date().getTime()}`, () => {})
+  loadScript(`${script}?v=${new Date().getTime()}`, () => {}),
 );
 
 async function loadAppSections() {
@@ -173,9 +174,8 @@ function loadModuleContent(module, Id, Detail, Detail2) {
     })
     .catch((error) => {
       console.error(error);
-      document.getElementById(
-        "content"
-      ).innerHTML = `<p>Error loading module ${module}</p>`;
+      document.getElementById("content").innerHTML =
+        `<p>Error loading module ${module}</p>`;
     });
   hideLoading();
 }

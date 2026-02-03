@@ -165,6 +165,9 @@ async function selectProduct(item) {
   if (item.unit_id) {
     document.getElementById("formUnit").value = item.unit_id;
   }
+  document.getElementById("formCogs").value = (item.cogs || 0).toLocaleString(
+    "id-ID",
+  );
 
   // D. Handle Kategori & Material Otomatis
   const catSelect = document.getElementById("formCategoryId");
@@ -455,6 +458,7 @@ async function submitData(method, id = "") {
 function setupPriceInputEvents() {
   // Tambahkan "formWholesalePrice" ke dalam list
   [
+    "formCogs",
     "formPrice",
     "formWholesalePrice",
     "formBerat",

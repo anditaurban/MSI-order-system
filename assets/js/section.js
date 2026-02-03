@@ -276,13 +276,15 @@ function renderSidebar(role) {
 
         <div id="productSubmenu" class="hidden ml-8 flex flex-col space-y-2">
           ${createMenuItem("product", allMenus.product)}
-          ${createMenuItem("inbound", allMenus.inbound)}
           ${createMenuItem("outbound", allMenus.outbound)}
-          ${createMenuItem("mutasi", allMenus.mutasi)}
-          ${createMenuItem("retur", allMenus.retur)}
+          
 
           <!-- OPNAME (DISABLED) -->
           <div class="pointer-events-none opacity-60 text-gray-400">
+          ${createMenuItem("inbound", allMenus.inbound)}
+          
+          ${createMenuItem("mutasi", allMenus.mutasi)}
+          ${createMenuItem("retur", allMenus.retur)}
             ${createMenuItem("opname", allMenus.opname)}
           </div>
         </div>

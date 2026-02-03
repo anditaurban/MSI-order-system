@@ -1,5 +1,5 @@
 pagemodule = "Product";
-setDataType("product_werehouse");
+setDataType("product_warehouse");
 
 // --- INISIALISASI ---
 if (window.detail_id) {
@@ -8,7 +8,7 @@ if (window.detail_id) {
   document.getElementById("formTitle").innerText = "UPDATE PRODUK GUDANG";
 
   // Load data detail untuk Edit
-  loadDetailWerehouse(window.detail_id);
+  loadDetailwarehouse(window.detail_id);
 } else {
   document.getElementById("updateButton").classList.add("hidden");
   document.getElementById("addButton").classList.remove("hidden");
@@ -53,10 +53,14 @@ function switchTab(tabId) {
 }
 
 // --- FUNGSI LOAD DETAIL (EDIT MODE) ---
-async function loadDetailWerehouse(id) {
+// --- FUNGSI LOAD DETAIL (EDIT MODE) ---
+async function loadDetailwarehouse(id) {
   try {
+    // Tampilkan loading state jika perlu
+    console.log("Fetching detail for ID:", id);
+
     // A. Fetch Data Detail
-    const response = await fetch(`${baseUrl}/detail/product_werehouse/${id}`, {
+    const response = await fetch(`${baseUrl}/detail/product/${id}`, {
       method: "GET",
       headers: { Authorization: `Bearer ${API_TOKEN}` },
     });
@@ -67,13 +71,18 @@ async function loadDetailWerehouse(id) {
     if (!data) throw new Error("Data detail tidak ditemukan");
 
     // B. Set Hidden ID & Text Input
-    document.getElementById("formProductId").value = data.product_id || "";
+    // Penting: pastikan di HTML ada input id="formProductId" dan id="formCogs"
+    if (document.getElementById("formProductId")) {
+      document.getElementById("formProductId").value = data.product_id;
+    }
+
     document.getElementById("formProduct").value = data.product || "";
     document.getElementById("formSKU").value = data.productcode || "";
     document.getElementById("formDescription").value = data.description || "";
 
     // C. Set Angka & Uang (Format Ribuan)
     const formatNum = (num) => (num || 0).toLocaleString("id-ID");
+
     document.getElementById("formPrice").value = formatNum(data.sale_price);
     document.getElementById("formWholesalePrice").value = formatNum(
       data.wholesale_price,
@@ -86,6 +95,12 @@ async function loadDetailWerehouse(id) {
       data.maximum_stock,
     );
 
+    // Tambahkan pengisian COGS jika ada inputnya
+    const cogsInput = document.getElementById("formCogs");
+    if (cogsInput) {
+      cogsInput.value = formatNum(data.cogs);
+    }
+
     // D. Load & Set Dropdown Unit
     await loadDropdown(
       "formUnit",
@@ -96,10 +111,10 @@ async function loadDetailWerehouse(id) {
     document.getElementById("formUnit").value = data.unit_id;
 
     // E. Load & Set Kategori + Material (Berantai)
-    // 1. Load Dropdown Kategori dulu dan set nilainya
+    // Tunggu kategori selesai dimuat sebelum set nilainya
     await loadCategoryDropdown(data.category_id);
 
-    // 2. Jika ada kategori, load material sesuai kategori tsb
+    // F. Load Material sesuai kategori
     if (data.category_id) {
       await loadMaterialDropdown(data.category_id, data.material_id);
     } else {
@@ -107,39 +122,22 @@ async function loadDetailWerehouse(id) {
         '<option value="">Pilih Material...</option>';
     }
 
-    // F. Logic Pintar: Load Checkbox Kategori Bisnis
-    // Mendeteksi apakah data dari server berupa Array Object, Array ID, atau String
+    // G. Logic Checkbox Kategori Bisnis
+    // JSON kamu berbentuk Array of Objects: [{"business_category_id": 5, ...}, ...]
     let savedCategories = [];
-
-    if (
-      Array.isArray(data.business_categories) &&
-      data.business_categories.length > 0
-    ) {
-      if (typeof data.business_categories[0] === "object") {
-        // Jika format: [{business_category_id: 1, ...}, ...]
-        savedCategories = data.business_categories.map(
-          (item) => item.business_category_id,
-        );
-      } else {
-        // Jika format: [1, 2, 3]
-        savedCategories = data.business_categories;
-      }
-    } else if (data.business_category_ids) {
-      if (typeof data.business_category_ids === "string") {
-        // Jika format string: "1,2,3"
-        savedCategories = data.business_category_ids.split(",");
-      } else if (Array.isArray(data.business_category_ids)) {
-        savedCategories = data.business_category_ids;
-      }
+    if (Array.isArray(data.business_categories)) {
+      savedCategories = data.business_categories.map(
+        (item) => item.business_category_id,
+      );
     }
 
-    console.log("ID Kategori yang akan dicentang:", savedCategories);
+    console.log("ID Kategori Bisnis yang dicentang:", savedCategories);
 
-    // Render checkbox dan centang yang sesuai
+    // Render checkbox dan centang otomatis
     await loadBusinessCategoryList(savedCategories);
   } catch (error) {
     console.error("Gagal load detail:", error);
-    Swal.fire("Error", "Gagal memuat detail data.", "error");
+    Swal.fire("Error", "Gagal memuat detail data: " + error.message, "error");
   }
 }
 
@@ -358,105 +356,71 @@ function setupProductAutocomplete() {
 }
 
 function getDataPayload() {
-  // --- Helper Pengambil Nilai ---
   const getVal = (id) => {
     const el = document.getElementById(id);
     return el ? el.value.trim() : "";
   };
 
-  // Helper Angka (Integer)
   const getInt = (id) => {
     let val = getVal(id).replace(/\./g, "");
-    const parsed = parseInt(val, 10);
-    return isNaN(parsed) ? 0 : parsed;
+    return parseInt(val, 10) || 0;
   };
 
-  // Helper Desimal (Float)
   const getFloat = (id) => {
     let val = getVal(id).replace(/\./g, "").replace(",", ".");
-    const parsed = parseFloat(val);
-    return isNaN(parsed) ? 0 : parsed;
+    return parseFloat(val) || 0;
   };
 
-  // --- VALIDASI ID WAJIB DIHAPUS, GANTI VALIDASI NAMA ---
-  // Kita tidak cek formProductId, tapi cek formProduct (Nama textnya)
-  if (!getVal("formProduct")) {
-    Swal.fire("Warning", "Nama Produk wajib diisi", "warning");
-    return null;
-  }
+  // --- TAMBAHKAN LOGIKA PRODUCT ID ---
+  // Jika sedang Tambah Baru, kirim 0. Jika Edit, ambil dari hidden input.
+  let rawId = getVal("formProductId");
+  let finalProductId = rawId ? parseInt(rawId) : 0;
 
-  // Jika kategori wajib dipilih (opsional, sesuaikan kebutuhan)
-  if (!getVal("formCategoryId")) {
-    Swal.fire("Warning", "Kategori wajib dipilih", "warning");
-    return null;
-  }
+  return {
+    owner_id: typeof owner_id !== "undefined" ? parseInt(owner_id) : 0,
+    product_id: finalProductId, // <--- WAJIB ADA (Sesuai histori project Anda)
+    material_id: getInt("formMaterial"),
+    unit_id: getInt("formUnit"),
+    category_id: getInt("formCategoryId"),
+    business_category_ids: getSelectedCategoryIds(),
 
-  // Ambil ID Kategori Bisnis
-  const selectedBusinessCategories = getSelectedCategoryIds();
-
-  // Ambil Werehouse ID
-  const finalWerehouseId =
-    typeof werehouse_id !== "undefined" && werehouse_id > 0 ? werehouse_id : 1;
-
-  // --- LOGIKA PENENTUAN PRODUCT ID ---
-  // Jika hidden ID kosong atau NaN, set jadi 0 (String atau Int sesuai backend)
-  let rawProductId = getVal("formProductId");
-  let finalProductId = rawProductId ? parseInt(rawProductId) : 0;
-
-  // --- KONSTRUKSI PAYLOAD LENGKAP ---
-  const payload = {
-    owner_id: typeof owner_id !== "undefined" ? owner_id : 0,
-
-    // IDs
-    product_id: finalProductId, // Jika manual input, ini akan bernilai 0
-    werehouse_id: finalWerehouseId,
-    material_id: parseInt(getVal("formMaterial")) || 0, // Handle jika kosong
-    unit_id: parseInt(getVal("formUnit")) || 0,
-    category_id: parseInt(getVal("formCategoryId")) || 0,
-
-    // Array ID Kategori Bisnis
-    business_category_ids: selectedBusinessCategories,
-
-    // TEXT DATA
     productcode: getVal("formSKU"),
-    product: getVal("formProduct"), // Nama produk dari input text
+    product: getVal("formProduct"),
     description: getVal("formDescription"),
 
-    // NUMBER DATA
+    cogs: getInt("formCogs"),
     sale_price: getInt("formPrice"),
     wholesale_price: getInt("formWholesalePrice"),
     maximum_stock: getInt("formMaxStock"),
     minimum_stock: getInt("formMinStock"),
     weight: getFloat("formBerat"),
   };
-
-  console.log("Payload Final:", payload);
-  return payload;
 }
 
 async function submitData(method, id = "") {
-  const payload = getDataPayload(); // Ambil data dari form
-  if (!payload) return; // Stop jika validasi gagal
+  const payload = getDataPayload();
+  if (!payload) return;
 
-  // Tentukan URL berdasarkan Method
-  // POST -> add/product_werehouse
-  // PUT  -> update/product_werehouse/{id}
-  let endpoint = "";
-  if (method === "POST") {
-    endpoint = "add/product_werehouse";
-  } else {
-    endpoint = `update/product_werehouse/${id}`;
-  }
+  // Sesuaikan endpoint sesuai instruksi (warehouse)
+  const endpoint =
+    method === "POST"
+      ? "add/product_warehouse"
+      : `update/product_warehouse/${id}`;
 
   const url = `${baseUrl}/${endpoint}`;
-  const actionText = method === "POST" ? "ditambahkan" : "diperbarui";
-
-  console.log(`Mengirim ${method} ke: ${url}`);
-  console.log("Body:", payload);
 
   try {
+    // Tampilkan loading (opsional)
+    Swal.fire({
+      title: "Mohon Tunggu",
+      html: "Sedang menyimpan data...",
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     const response = await fetch(url, {
-      method: method, // ⬅️ Pastikan ini 'POST' atau 'PUT' sesuai parameter
+      method: method,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${API_TOKEN}`,
@@ -467,22 +431,22 @@ async function submitData(method, id = "") {
     const result = await response.json();
 
     if (response.ok) {
-      // Cek HTTP Status 200-299
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Berhasil",
-        text: `Data produk berhasil ${actionText}`,
+        text: `Data produk berhasil ${method === "POST" ? "ditambahkan" : "diperbarui"}`,
       });
-      loadModuleContent("product"); // Kembali ke list
+      loadModuleContent("product"); // Redirect kembali ke list
     } else {
-      throw new Error(result.message || `Gagal ${actionText} data`);
+      // Tangani error dari backend (misal: SKU duplikat)
+      throw new Error(result.message || "Terjadi kesalahan pada server");
     }
   } catch (error) {
-    console.error(error);
+    console.error("Submit Error:", error);
     Swal.fire({
       icon: "error",
-      title: "Gagal",
-      text: error.message || `Terjadi kesalahan koneksi.`,
+      title: "Gagal Simpan",
+      text: error.message,
     });
   }
 }

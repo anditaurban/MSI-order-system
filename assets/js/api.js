@@ -80,6 +80,7 @@ const endpointList = [
   "product_unit",
   "product_status",
   "warehouse",
+  "role",
   "warehouse_pic",
   "finance_account_payment",
   "product_category",

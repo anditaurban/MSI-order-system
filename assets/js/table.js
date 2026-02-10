@@ -411,15 +411,22 @@ function handleCreateFile(formDataFile, detail_id) {
 }
 
 function handleCreateResponse(data, detail_id) {
-  const message = data.data.message;
-  const isSuccess = message === "Data successfully added";
+  // Pastikan mengambil path message yang benar dari response API kamu
+  const message = data.message || (data.data && data.data.message);
+
+  // Logic: Jika ada message dan mengandung kata 'success' (case insensitive)
+  const isSuccess = message && message.toLowerCase().includes("success");
 
   Swal.fire({
-    icon: isSuccess ? "success" : "error",
-    title: isSuccess ? "Success" : "Failed",
+    icon: isSuccess ? "success" : "warning", // Gunakan 'warning' untuk pesan validasi agar lebih soft
+    title: isSuccess ? "Berhasil" : "Perhatian",
     text: message,
   }).then(() => {
-    fetchAndUpdateData(detail_id);
+    // Jika berhasil, baru update table atau tutup modal
+    if (isSuccess) {
+      fetchAndUpdateData(detail_id);
+      // closemodal(); // Tambahkan jika perlu tutup modal otomatis
+    }
   });
 }
 

@@ -92,11 +92,24 @@ const state = endpointList.reduce((acc, type) => {
   return acc;
 }, {});
 
-// generate endpoints otomatis
+// 1. Pastikan dipisah dengan koma dan tanda kutip masing-masing
+const useWarehouseIdTypes = ["warehouse_pic"];
+
+// 2. Generate endpoints dengan proteksi jika variabel id belum ada
 const endpoints = endpointList.reduce((acc, type) => {
+  // Ambil ID yang sesuai, pastikan variabel warehouse_id & owner_id sudah didefinisikan di atasnya
+  const idToUse = useWarehouseIdTypes.includes(type)
+    ? typeof warehouse_id !== "undefined"
+      ? warehouse_id
+      : ""
+    : typeof owner_id !== "undefined"
+      ? owner_id
+      : "";
+
   acc[type] = {
-    table: `${baseUrl}/table/${type}/${owner_id}`,
-    list: `${baseUrl}/list/${type}/${owner_id}`,
+    // Pastikan urutan path URL sesuai dengan dokumentasi API backend kamu
+    table: `${baseUrl}/table/${type}/${idToUse}`,
+    list: `${baseUrl}/list/${type}/${idToUse}`,
     detail: `${baseUrl}/detail/${type}`,
     update: `${baseUrl}/update/${type}`,
     create: `${baseUrl}/add/${type}`,

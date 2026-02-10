@@ -417,68 +417,133 @@ function debounce(fn, delay) {
 }
 
 // Fungsi pencarian dan render hasil
-async function searchCity(query) {
-  if (!query.trim()) {
-    resultList.innerHTML = "";
-    resultList.classList.add("hidden");
+// Fungsi debounce (tetap sama)
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// FUNGSI PENCARIAN WILAYAH UNIVERSAL
+async function searchCity(query, targetType = "main") {
+  // Tentukan mapping ID berdasarkan targetType
+  const config = {
+    main: {
+      list: "resultList",
+      input: "cityInput",
+      fields: {
+        region_id: "formregion_ID",
+        kelurahan: "formKelurahan",
+        kecamatan: "formKecamatan",
+        kota: "formKota",
+        provinsi: "formProvinsi",
+        kodepos: "formPOS",
+      },
+    },
+    pic: {
+      list: "picResultList",
+      input: "picCityInput",
+      fields: {
+        region_id: "pic_region_id",
+        kelurahan: "pic_kelurahan",
+        kecamatan: "pic_kecamatan",
+        kota: "pic_kota",
+        provinsi: "pic_provinsi",
+        kodepos: "pic_kodepos",
+      },
+    },
+  }[targetType];
+
+  const resultListEl = document.getElementById(config.list);
+  if (!query.trim() || query.length < 3) {
+    resultListEl.innerHTML = "";
+    resultListEl.classList.add("hidden");
     return;
   }
 
   try {
-    const url = `https://region.katib.cloud/table/region/${owner_id}/1?search=${encodeURIComponent(
-      query,
-    )}`;
+    const url = `https://region.katib.cloud/table/region/${owner_id}/1?search=${encodeURIComponent(query)}`;
     const res = await fetch(url, {
       headers: {
         Authorization: `Bearer 0f4d99ae56bf938a9dc29d4f4dc499b919e44f4d3774cf2e5c7b9f5395d05fc6`,
       },
     });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
     const data = await res.json();
     const results = data.tableData || [];
 
-    resultList.innerHTML = results.length
+    resultListEl.innerHTML = results.length
       ? results
           .map(
             (item) => `
-          <li class="px-3 py-2 border-b hover:bg-gray-100 cursor-pointer"
+          <li class="px-3 py-2 border-b hover:bg-blue-50 cursor-pointer text-sm"
+              onclick="selectRegionGeneric(this, '${targetType}')"
               data-kelurahan="${item.kelurahan}"
               data-kecamatan="${item.kecamatan}"
               data-kota="${item.kota}"
               data-provinsi="${item.provinsi}"
               data-kodepos="${item.kode_pos}"
               data-region_id="${item.region_id}">
-              ${item.kelurahan}, ${item.kecamatan}, ${item.kota}, ${item.provinsi} ${item.kode_pos}
+              <strong>${item.kelurahan}</strong>, ${item.kecamatan}, ${item.kota}, ${item.provinsi} ${item.kode_pos}
           </li>`,
           )
           .join("")
       : '<li class="px-3 py-2 text-gray-500">Tidak ditemukan</li>';
 
-    resultList.classList.remove("hidden");
-
-    // Tambahkan event listener untuk setiap <li>
-    resultList.querySelectorAll("li[data-kelurahan]").forEach((li) => {
-      li.addEventListener("click", () => {
-        document.getElementById("formregion_ID").value = li.dataset.region_id;
-        document.getElementById("formKelurahan").value = li.dataset.kelurahan;
-        document.getElementById("formKecamatan").value = li.dataset.kecamatan;
-        document.getElementById("formKota").value = li.dataset.kota;
-        document.getElementById("formProvinsi").value = li.dataset.provinsi;
-        document.getElementById("formPOS").value = li.dataset.kodepos;
-
-        input.value = li.textContent;
-        resultList.classList.add("hidden");
-      });
-    });
+    resultListEl.classList.remove("hidden");
   } catch (err) {
     console.error("Gagal ambil data wilayah:", err);
-    resultList.innerHTML =
-      '<li class="px-2 py-1 text-red-500">Gagal ambil data</li>';
-    resultList.classList.remove("hidden");
   }
 }
+
+// FUNGSI PILIH WILAYAH UNIVERSAL
+window.selectRegionGeneric = function (el, targetType) {
+  const configs = {
+    main: {
+      input: "cityInput",
+      list: "resultList",
+      fields: {
+        region_id: "formregion_ID",
+        kelurahan: "formKelurahan",
+        kecamatan: "formKecamatan",
+        kota: "formKota",
+        provinsi: "formProvinsi",
+        kodepos: "formPOS",
+      },
+    },
+    pic: {
+      input: "picCityInput",
+      list: "picResultList",
+      fields: {
+        region_id: "pic_region_id",
+        kelurahan: "pic_kelurahan",
+        kecamatan: "pic_kecamatan",
+        kota: "pic_kota",
+        provinsi: "pic_provinsi",
+        kodepos: "pic_kodepos",
+      },
+    },
+  }[targetType];
+
+  // Isi semua field berdasarkan dataset
+  document.getElementById(configs.fields.region_id).value =
+    el.dataset.region_id;
+  document.getElementById(configs.fields.kelurahan).value =
+    el.dataset.kelurahan;
+  document.getElementById(configs.fields.kecamatan).value =
+    el.dataset.kecamatan;
+  document.getElementById(configs.fields.kota).value = el.dataset.kota;
+  document.getElementById(configs.fields.provinsi).value = el.dataset.provinsi;
+  document.getElementById(configs.fields.kodepos).value = el.dataset.kodepos;
+
+  // Update input teks
+  document.getElementById(configs.input).value = el.innerText.trim();
+
+  // Sembunyikan list
+  document.getElementById(configs.list).classList.add("hidden");
+};
 
 input.addEventListener(
   "input",
@@ -521,7 +586,8 @@ formHtml = `
     <label class="block text-sm font-medium text-gray-700 mb-1">Cari Wilayah (Auto-fill)</label>
     <div class="flex">
         <input type="text" id="picCityInput" placeholder="Ketik Kelurahan / Kecamatan..." 
-            class="w-full border border-gray-300 rounded-l-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500" oninput="handlePicRegionSearch(this.value)" />
+            class="w-full border border-gray-300 rounded-l-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500" 
+            oninput="debouncedSearchPic(this.value)" />
         <span class="bg-gray-100 border border-l-0 border-gray-300 px-3 rounded-r-md text-sm flex items-center">🔎</span>
     </div>
     <ul id="picResultList" class="absolute z-50 w-full border bg-white mt-1 max-h-40 overflow-y-auto text-sm shadow-md rounded-md hidden"></ul>
@@ -875,64 +941,6 @@ async function fillFormData(data) {
   }
 }
 
-/**
- * 4. LOGIKA PENCARIAN WILAYAH KHUSUS MODAL (PIC)
- * Fungsi ini dipanggil oninput dari #picCityInput di formHtml
- */
-
-function handlePicRegionSearch(query) {
-  const resultList = document.getElementById("picResultList");
-  const input = document.getElementById("picCityInput");
-
-  // Clear timer lama
-  clearTimeout(picDebounceTimer.timer);
-
-  if (!query || query.length < 3) {
-    resultList.classList.add("hidden");
-    return;
-  }
-
-  // Set timer baru (debounce 400ms)
-  picDebounceTimer.timer = setTimeout(async () => {
-    try {
-      // Gunakan API Region yang sama dengan Tab 1
-      const url = `https://region.katib.cloud/table/region/${owner_id}/1?search=${encodeURIComponent(
-        query,
-      )}`;
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer 0f4d99ae56bf938a9dc29d4f4dc499b919e44f4d3774cf2e5c7b9f5395d05fc6`,
-        },
-      });
-      const data = await res.json();
-      const results = data.tableData || [];
-
-      resultList.innerHTML = results.length
-        ? results
-            .map(
-              (item) => `
-                    <li class="px-3 py-2 border-b hover:bg-blue-50 cursor-pointer text-xs"
-                        onclick="selectPicRegion(this)"
-                        data-kelurahan="${item.kelurahan}"
-                        data-kecamatan="${item.kecamatan}"
-                        data-kota="${item.kota}"
-                        data-provinsi="${item.provinsi}"
-                        data-kodepos="${item.kode_pos}"
-                        data-region_id="${item.region_id}">
-                        <strong>${item.kelurahan}</strong>, ${item.kecamatan}, ${item.kota}, ${item.provinsi} (${item.kode_pos})
-                    </li>
-                  `,
-            )
-            .join("")
-        : '<li class="px-3 py-2 text-gray-500 text-xs">Tidak ditemukan</li>';
-
-      resultList.classList.remove("hidden");
-    } catch (err) {
-      console.error("Gagal cari wilayah PIC:", err);
-    }
-  }, 400);
-}
-
 // Fungsi saat Item Wilayah di-klik (Global scope agar terbaca onclick string)
 window.selectPicRegion = function (el) {
   // 1. Isi Hidden Fields
@@ -1031,4 +1039,16 @@ window.validateFormData = function (data) {
   }
   return true; // Validasi Sukses
 };
+
+// Inisialisasi untuk Tab Utama (Warehouse)
+var cityInputMain = document.getElementById("cityInput");
+if (cityInputMain) {
+  cityInputMain.addEventListener(
+    "input",
+    debounce((e) => searchCity(e.target.value, "main"), 400),
+  );
+}
+
+// Inisialisasi untuk Modal (PIC) - Gunakan window agar terbaca oleh oninput di HTML
+window.debouncedSearchPic = debounce((val) => searchCity(val, "pic"), 400);
 window.updateStatusPic = updateStatusPic;

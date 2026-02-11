@@ -111,26 +111,34 @@ async function filterKlienSuggestions() {
 
       // Render hasil pencarian dari API
       suggestionBox.innerHTML = "";
-      results.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = `${item.nama} (${item.no_membership})`;
-        li.className =
-          "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
 
-        li.onclick = () => {
-          document.getElementById("klien").value = item.nama;
-          document.getElementById("klien_id").value = item.pelanggan_id;
-          document.getElementById("no_hp").value = item.whatsapp || "";
-          document.getElementById("alamat").value = item.alamat || "";
-          document.getElementById("city").value = item.region_name || "";
-          document.getElementById("city_id").value = item.region_id || "";
+results.forEach((item) => {
+  const li = document.createElement("li");
 
-          loadPicToSelect(item.customer_pic, item);
-          suggestionBox.classList.add("hidden");
-        };
-        suggestionBox.appendChild(li);
-      });
+  // --- BAGIAN PERUBAHAN DI SINI ---
+  // Kita ambil semua 'business_category', lalu gabungkan dengan koma
+  const membershipLabel = (item.business_categories && item.business_categories.length > 0) 
+                          ? item.business_categories.map(cat => cat.business_category).join(", ") 
+                          : "No Cat";
+  // --------------------------------
 
+  li.textContent = `${item.nama} (${membershipLabel})`;
+  li.className = "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
+
+  li.onclick = () => {
+    document.getElementById("klien").value = item.nama;
+    document.getElementById("klien_id").value = item.pelanggan_id;
+    document.getElementById("no_hp").value = item.whatsapp || "";
+    document.getElementById("alamat").value = item.alamat || "";
+    document.getElementById("city").value = item.region_name || "";
+    document.getElementById("city_id").value = item.region_id || "";
+
+    loadPicToSelect(item.customer_pic, item);
+    suggestionBox.classList.add("hidden");
+  };
+
+  suggestionBox.appendChild(li);
+});
       suggestionBox.classList.remove("hidden");
     } catch (err) {
       console.error("Gagal search mitra:", err);

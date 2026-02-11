@@ -152,31 +152,34 @@ function loadData() {
   }
 
   tableBody.innerHTML = "";
-  if (!dataItems || dataItems.length === 0) {
+
+  // --- PERBAIKAN MULAI DI SINI ---
+  // Jika dataItems ada tapi bukan array, bungkus jadi array
+  let itemsToRender = dataItems;
+  if (itemsToRender && !Array.isArray(itemsToRender)) {
+    itemsToRender = [itemsToRender];
+  }
+
+  // Cek apakah data kosong
+  if (!itemsToRender || itemsToRender.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="${colSpanCount}" style="text-align: center; color: red; font-weight: bold;">No Data Available</td></tr>`;
     return;
   }
 
-  dataItems.forEach((item, index) => {
-    row = document.createElement("tr");
-
+  // Gunakan itemsToRender, bukan dataItems langsung
+  itemsToRender.forEach((item, index) => {
+    const row = document.createElement("tr"); // Tambahkan 'const' agar tidak jadi variabel global
+    
+    // ... sisa kode kamu di bawahnya tetap sama ...
     const html = window.rowTemplate(item, index);
     const hasDropdown = html.includes("dropdown-menu");
     const action = hasDropdown;
 
-    // Tambahkan class & event jika ada dropdown
     if (action) {
-      row.classList.add(
-        "hover:bg-gray-50",
-        "cursor-pointer",
-        "transition",
-        "relative",
-      );
-      row.onclick = function (e) {
-        toggleDropdown(this, e);
-      };
+      row.classList.add("hover:bg-gray-50", "cursor-pointer", "transition", "relative");
+      row.onclick = function (e) { toggleDropdown(this, e); };
     }
-    row.innerHTML = window.rowTemplate(item, index);
+    row.innerHTML = html;
     tableBody.appendChild(row);
   });
 }

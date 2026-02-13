@@ -85,6 +85,7 @@ const endpointList = [
   "finance_account_payment",
   "product_category",
   "level",
+  "courier",
 ];
 
 // generate state otomatis

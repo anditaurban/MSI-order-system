@@ -55,6 +55,7 @@
   <div id="invoiceContainer" class="invoice-box"></div>
 
   <script>
+    // Load external API script
     const script = document.createElement('script');
     script.src = `./assets/js/api.js?v=${new Date().getTime()}`;
     document.body.appendChild(script);
@@ -62,28 +63,74 @@
     const urlParams = new URLSearchParams(window.location.search);
     const faktur_id = urlParams.get('id');
     const isDownload = urlParams.get('mode') === 'download';
-    const today = new Date().toISOString().split('T')[0];
-
     const container = document.getElementById('invoiceContainer');
 
-    async function loadFakturData() {
+   async function loadFakturData() {
+  if (typeof baseUrl === 'undefined' || typeof API_TOKEN === 'undefined') {
+    setTimeout(loadFakturData, 200);
+    return;
+  }
+
+  try {
+    // 1. Ambil ownerId langsung dari Local Storage
+    const userDataRaw = localStorage.getItem('user');
+    let ownerId = null;
+
+    if (userDataRaw) {
+      const userData = JSON.parse(userDataRaw);
+      ownerId = userData.owner_id; // Mengambil 4464 dari storage
+    }
+
+    // 2. Fetch Data Faktur
+    const resFaktur = await fetch(`${baseUrl}/detail/sales/${faktur_id}`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` }
+    });
+    const resultFaktur = await resFaktur.json();
+    const data = resultFaktur?.detail;
+    
+    if (!data) throw new Error('Data faktur tidak ditemukan');
+
+    // 3. Jika ownerId di storage kosong, coba ambil dari data faktur (backup)
+    if (!ownerId) {
+        ownerId = data.owner_id;
+    }
+
+    let bankHtml = '<p class="text-red-500">Hubungi admin untuk informasi pembayaran.</p>';
+
+    // 4. Fetch Data Bank menggunakan ownerId yang didapat
+    if (ownerId) {
       try {
-        const res = await fetch(`${baseUrl}/detail/sales/${faktur_id}`, {
+        const resBank = await fetch(`${baseUrl}/list/finance_account_payment/${ownerId}`, {
           headers: { Authorization: `Bearer ${API_TOKEN}` }
         });
+        const resultBank = await resBank.json();
+        const bankAccounts = resultBank?.listData || [];
+        const activeAccounts = bankAccounts.filter(acc => acc.status === 'on');
 
-        const result = await res.json();
-        const data = result?.detail;
+        if (activeAccounts.length > 0) {
+          bankHtml = activeAccounts.map(acc => `
+            <div style="margin-bottom: 8px;">
+              <strong>Bank:</strong> ${acc.account}<br>
+              <strong>Atas Nama:</strong> ${acc.owner_account}<br>
+              <strong>No. Rekening:</strong> ${acc.number_account}
+            </div>
+          `).join('');
+        }
+      } catch (bankErr) {
+        console.error('Gagal mengambil data bank', bankErr);
+      }
+    }
+
         const items = data?.sales_detail || [];
-        if (!data) throw new Error('Data faktur tidak ditemukan');
-
         const formatRp = val => `Rp ${(+val).toLocaleString('id-ID')}`;
 
+        // 3. Render HTML
         const html = `
+
           <table style="margin-bottom: 20px;">
             <tr>
               <td>
-                <img src="../../assets/img/logo_msi.png" style="height: 40px" />
+                <img src="assets/img/logo_msi.png" style="height: 40px" />
                 <p class="mt-2">MSI Indonesia<br>
                 Jl. Moh. Kahfi 1 No.31, RT.5/RW.5, Ciganjur, <br>
                 Kec. Jagakarsa, Kota Jakarta Selatan, <br>
@@ -94,7 +141,8 @@
                 <p class="mt-2">No: ${data.no_inv}<br>Tanggal: ${data.date}<br>Jatuh Tempo: ${data.due_date || '-'}</p>
               </td>
             </tr>
-          </table>
+          </table>          
+         
 
           <hr class="my-4" />
 
@@ -157,18 +205,19 @@
             </tbody>
           </table>
 
-<p class="mt-6 text-sm text-gray-700 leading-relaxed">
-  Silakan lakukan pembayaran invoice ke rekening berikut:<br>
-  <strong>Bank:</strong> BSI (Bank Syariah Indonesia)<br>
-  <strong>Atas Nama:</strong> PT MASTER SUPPLY<br>
-  <strong>No. Rekening:</strong> 7308565127<br><br>
-  Terima kasih atas kerja samanya. Semoga usaha Anda selalu lancar dan diberkahi!
-</p>
-
+            <p class="mt-6 text-sm text-gray-700 leading-relaxed">
+              Silakan lakukan pembayaran invoice ke rekening berikut:
+            
+            <div class="text-sm text-gray-800">
+              ${bankHtml}
+            </div>
+              Terima kasih atas kerja samanya. Semoga usaha Anda selalu lancar dan diberkahi!
+            </p>
         `;
 
         container.innerHTML = html;
 
+        // 4. Handle Download PDF
         if (isDownload) {
           setTimeout(() => {
             html2pdf()
@@ -185,7 +234,7 @@
         }
       } catch (err) {
         console.error('Gagal memuat faktur', err);
-        alert('Gagal memuat data faktur.');
+        container.innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Error: ${err.message}</div>`;
       }
     }
 

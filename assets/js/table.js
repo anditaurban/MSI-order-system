@@ -382,14 +382,16 @@ function handleCreate(formData, detail_id) {
     .catch(() => showErrorAlert("Failed to save data. Please try again."));
 }
 
+// Di dalam table.js cari fungsi ini dan ubah selectornya
 function getFormDataFile() {
-  const formElement = document.querySelector("#dataformfile");
+  // Ubah dari #dataformfile menjadi #dataform agar konsisten
+  const formElement = document.querySelector("#dataform"); 
   if (!formElement) {
     throw new Error("Form not found");
   }
 
   const formDataFile = new FormData(formElement);
-
+  // Validasi tetap berjalan
   if (!validateFormData(formDataFile)) {
     return false;
   }
@@ -603,35 +605,48 @@ async function handleEdit(Id, Data, tab) {
 }
 
 function getFormDataWithExistingImage(imagePath) {
-  const formData = getFormDataFile();
+  // Ambil elemen form langsung
+  const formElement = document.querySelector("#dataform");
+  if (!formElement) {
+    throw new Error("Form not found");
+  }
+
+  // BUAT ULANG FormData dari elemen form asli
+  const formData = new FormData(formElement);
+  
+  // Sekarang append PASTI ada dan bisa dipakai
   formData.append("existing_image", imagePath);
+  
+  // Lakukan validasi manual di sini jika perlu, 
+  // atau biarkan mengalir ke handleUpdate
   return formData;
 }
 
 function handleUpdate(id, formData) {
   const updateUrl = `${endpoints[currentDataType].update}/${id}`;
-
-  // Check if formData is FormData (file upload) or a regular object
   const isMultipart = formData instanceof FormData;
 
-  if (!isMultipart) {
-    formData.owner_id = owner_id;
+  // Jika sudah FormData, tambahkan owner_id ke dalam FormData-nya saja
+  if (isMultipart) {
+    // Cek dulu biar tidak double jika sudah ada di formHtml
+    if (!formData.has("owner_id")) {
+      formData.append("owner_id", owner_id);
+    }
   } else {
-    formData.append("owner_id", owner_id);
+    formData.owner_id = owner_id;
   }
 
-  console.log(formData);
   fetch(updateUrl, {
-    method: "PUT", // Use POST for form-data, some APIs allow PUT with form-data too
+    method: "PUT", 
     headers: {
-      Authorization: `Bearer ${API_TOKEN}`,
-      ...(isMultipart ? {} : { "Content-Type": "application/json" }), // Do not set Content-Type for FormData
+      "Authorization": `Bearer ${API_TOKEN}`,
+      ...(isMultipart ? {} : { "Content-Type": "application/json" }),
     },
     body: isMultipart ? formData : JSON.stringify(formData),
   })
-    .then((response) => response.json())
-    .then((data) => handleUpdateResponse(data))
-    .catch(() => showErrorAlert("Failed to update data. Please try again."));
+  .then((response) => response.json())
+  .then((data) => handleUpdateResponse(data))
+  .catch(() => showErrorAlert("Failed to update data."));
 }
 
 function handleUpdateResponse(data) {

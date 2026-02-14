@@ -3,58 +3,64 @@ colSpanCount = 9;
 setDataType('courier');
 fetchAndUpdateData();
 
-function validateFormData(formData, requiredFields = []) {
+function validateFormData(formData, fields = requiredFields) {
   console.log('Validasi Form');
-  for (const { field, message } of requiredFields) {
-    if (!formData[field] || formData[field].trim() === '') {
-      alert(message);
+  
+  // Jika formData adalah instance dari FormData (untuk upload file)
+  const isFormData = formData instanceof FormData;
+
+  for (const { field, message } of fields) {
+    // Ambil value berdasarkan tipe data yang masuk
+    const value = isFormData ? formData.get(field) : formData[field];
+
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
+      Swal.fire('Error', message, 'error');
       return false;
     }
   }
   return true;
-} 
+}
 
 async function fillFormData(data) {
-  console.log("Data yang diterima:", data);
-
-  // Helper untuk menunggu sampai <option> tersedia (penting jika option di-load via API lain)
-  async function waitForOption(selectId, expectedValue, timeout = 3000) {
-    return new Promise((resolve) => {
-      const interval = 100;
-      let waited = 0;
-
-      const check = () => {
-        const select = document.getElementById(selectId);
-        if (!select) return resolve(); // Guard jika element tidak ada
-        
-        const exists = Array.from(select.options).some(opt => opt.value === expectedValue?.toString());
-        if (exists || waited >= timeout) {
-          resolve();
-        } else {
-          waited += interval;
-          setTimeout(check, interval);
-        }
-      };
-      check();
-    });
+  // Pastikan mengambil objek di dalam 'detail' sesuai log konsol kamu
+  const detail = data.detail || data; 
+  if (!detail) {
+    console.error("Gagal membedah data detail");
+    return;
   }
 
-  // 1. Sesuaikan pengisian Owner ID (sebelumnya account_id)
-  const ownerIdValue = data.owner_id || ''; 
-  await waitForOption('formBank', ownerIdValue);
-  const formBank = document.getElementById('formBank');
-  if (formBank) formBank.value = ownerIdValue;
-
-  // 2. Sesuaikan pengisian Courier (sebelumnya tag)
-  const courierInput = document.getElementById('formCourier');
-  if (courierInput) {
-    courierInput.value = data.courier || '';
+  // Isi ID Utama agar table.js tahu ID mana yang di-update
+  if (document.getElementById('formId')) {
+    document.getElementById('formId').value = detail.courier_id || '';
   }
 
-  // Catatan: Input type="file" tidak bisa diisi secara otomatis lewat JavaScript 
-  // karena alasan keamanan browser (security restriction). 
-  // User harus memilih file secara manual.
+  // Isi Nama Kurir
+  if (document.getElementById('formCourier')) {
+    document.getElementById('formCourier').value = detail.courier || '';
+  }
+  
+  // Isi Owner ID
+  if (document.getElementById('owner_id')) {
+    document.getElementById('owner_id').value = detail.owner_id || window.owner_id || '';
+  }
+
+  // PENTING: Isi file_text agar saat Edit tanpa ganti gambar, logo tidak hilang
+  if (document.getElementById('file_text')) {
+    document.getElementById('file_text').value = detail.courier_logo || '';
+  }
+
+  // Update Preview Logo
+  const preview = document.getElementById('logoPreview');
+  if (preview && detail.courier_logo) {
+    preview.src = detail.courier_logo;
+    preview.classList.remove('hidden');
+  }
 }
+
+
+// 3. Perbarui Required Fields agar sesuai dengan ID di formHtml
+
+
 
 async function loadDropdown(selectId, apiUrl, valueField, labelField) {
   const select = document.getElementById(selectId);
@@ -92,20 +98,17 @@ async function loadDropdown(selectId, apiUrl, valueField, labelField) {
   }
 }
 
-function loadDropdownCall() {
-  loadDropdown('formBank', `${baseUrl}/list/finance_account`, 'account_id', 'account');
-  // loadDropdown('formPM', `${baseUrl}/list/project_manager/${owner_id}`, 'project_manager_id', 'name');
-} 
+// function loadDropdownCall() {
+//   loadDropdown('formBank', `${baseUrl}/list/finance_account`, 'account_id', 'account');
+//   // loadDropdown('formPM', `${baseUrl}/list/project_manager/${owner_id}`, 'project_manager_id', 'name');
+// } 
 
 
   window.rowTemplate = function (item, index, perPage = 10) {
   const { currentPage } = state[currentDataType];
   const globalIndex = (currentPage - 1) * perPage + index + 1;
   
-  // Base URL untuk logo
-  const logoBaseUrl = "https://devngomset.katib.cloud/logo/courier/";
-  // Kita asumsikan filenya menggunakan nama kurir atau field tertentu dari API
-  const logoUrl = `${logoBaseUrl}${item.courier_logo}`; 
+  const logoUrl = item.courier_logo || 'https://via.placeholder.com/50?text=No+Img'; 
 
   return `
   <tr class="flex flex-col sm:table-row border rounded sm:rounded-none mb-4 sm:mb-0 shadow-sm sm:shadow-none transition hover:bg-gray-50">  
@@ -122,16 +125,20 @@ function loadDropdownCall() {
       <span class="font-medium sm:hidden">Courier</span>
       ${item.courier}
       <div class="dropdown-menu hidden fixed w-48 bg-white border rounded shadow z-50 text-sm">
-        <button onclick="event.stopPropagation(); handleEdit(${item.courier_id})" class="block w-full text-left px-4 py-2 hover:bg-gray-100">✏️ Edit</button>
+<button onclick="event.stopPropagation(); handleEdit(${item.courier_id}, '${item.courier}')" 
+        class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+    ✏️ Edit
+</button>
         <button onclick="event.stopPropagation(); handleDelete(${item.courier_id})" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">
           🗑 Delete
         </button>
       </div>
-    </td>
-     <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
+    <td class="px-6 py-4 text-sm text-gray-700 border-b sm:border-0 flex justify-between sm:table-cell">
       <span class="font-medium sm:hidden">Logo</span>
       <div class="w-12 h-12 flex items-center justify-center bg-gray-100 rounded overflow-hidden">
-        <img src="${logoUrl}" alt="${item.courier}" onerror="this.src='https://via.placeholder.com/50?text=No+Img'" class="max-w-full max-h-full object-contain">
+        <img src="${logoUrl}" alt="${item.courier}" 
+             onerror="this.src='https://via.placeholder.com/50?text=No+Img'" 
+             class="max-w-full max-h-full object-contain">
       </div>
     </td>
   </tr>`;
@@ -142,28 +149,28 @@ function loadDropdownCall() {
     loadDropdownCall();
   });
 
-  formHtml = `
-<form id="dataform" class="space-y-2">
+formHtml = `
+<form id="dataform" class="space-y-2" onsubmit="event.preventDefault();">
+  <input type="hidden" id="formId" name="courier_id">
+  <input type="hidden" id="owner_id" name="owner_id" value="${owner_id}">
+  <input type="hidden" id="file_text" name="file_text">
 
-  <label for="formCourier" class="block text-sm font-medium text-gray-700 dark:text-gray-200 text-left">Kurir</label>
-  <input id="formCourier" name="courier" type="text" placeholder="J&T Cargo" class="form-control w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+  <label for="formCourier" class="block text-sm font-medium text-left">Kurir</label>
+  <input id="formCourier" name="courier" type="text" placeholder="J&T Cargo" 
+         class="form-control w-full px-3 py-2 border rounded-md">
 
-  <label for="formFile" class="block text-sm font-medium text-gray-700 dark:text-gray-200 text-left">Upload File</label>
-  <input id="formFile" name="file" type="file" class="form-control w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-
-
-
-
+  <label for="file" class="block text-sm font-medium text-left">Upload File (Logo)</label>
+  <input id="file" name="file" type="file" class="form-control w-full px-3 py-2 border rounded-md">
+  
+  <div class="mt-2 text-left">
+    <img id="logoPreview" src="" class="h-16 w-16 object-contain border rounded p-1 hidden" 
+         onerror="this.classList.add('hidden')">
+  </div>
 </form>
-
-  `
+`;
 requiredFields = [
-    { field: 'formProject', message: 'Project Name is required!' },
-    { field: 'formPM', message: 'Project Manager is required!' },
-    { field: 'formStartDate', message: 'Starting Date is required!' },
-    { field: 'formDeadline', message: 'Deadline is required!' }
-  ];  
+    { field: 'courier', message: 'Nama Kurir wajib diisi!' },
+];
 
 
 

@@ -724,7 +724,7 @@ async function exportData() {
       const totalPages = data.totalPages || 1;
 
       console.log(
-        `📌 Halaman ${page} berisi ${tableData.length} data (totalPages=${totalPages})`,
+        `📌 Halaman ${page} berisi ${tableData.length} data (totalPages=${totalPages})`
       );
 
       if (tableData.length === 0) break;
@@ -738,17 +738,38 @@ async function exportData() {
 
     console.log(`📊 Total data: ${allData.length}`);
 
-    const ws = XLSX.utils.json_to_sheet(allData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sales");
+    const cleanedData = allData.map((row) => {
+      const newRow = {};
+      Object.keys(row).forEach((key) => {
+        // 1. Skip kolom yang berakhiran _id
+        if (key.endsWith("_id")) return;
 
-    const fileName = `Sales_${start}_to_${end}.xlsx`;
+        // 2. Cek apakah value-nya adalah Array (seperti business_categories)
+        if (Array.isArray(row[key])) {
+          // Gabungkan isi array menjadi string yang dipisahkan koma
+          newRow[key] = row[key].join(", ");
+        } else {
+          // Simpan data biasa
+          newRow[key] = row[key];
+        }
+      });
+      return newRow;
+    });
+
+    // ============================
+    // Export ke Excel
+    // ============================
+    const ws = XLSX.utils.json_to_sheet(cleanedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Export");
+
+    const fileName = `Export_${currentDataType}_${start}_to_${end}.xlsx`;
     XLSX.writeFile(wb, fileName);
 
     Swal.fire({
       icon: "success",
       title: "Berhasil!",
-      text: `Data berhasil diunduh (${allData.length} baris).`,
+      text: `Data berhasil diunduh (${cleanedData.length} baris).`,
     });
   } catch (error) {
     console.error("❌ Error:", error);

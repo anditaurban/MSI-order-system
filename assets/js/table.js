@@ -41,9 +41,31 @@ async function filterData(filter) {
   document.getElementById("dropdownFilterMenu").classList.add("hidden");
 }
 
-async function resetfilterData() {
-  currentFilterType = null;
+async function filterData(filter) {
+  // Reset UI Input Tanggal
+  const startDateInput = document.getElementById('customStartDate');
+  const endDateInput = document.getElementById('customEndDate');
+  if (startDateInput) startDateInput.value = '';
+  if (endDateInput) endDateInput.value = '';
+
+  const dateContainer = document.getElementById('dateFilterContainer');
+  if (dateContainer) {
+    dateContainer.classList.add('hidden');
+    dateContainer.classList.remove('flex');
+  }
+
+  // Hapus tanggal dari state global agar tidak ikut terkirim di fetchAndUpdateData
+  if (state[currentDataType]) {
+    delete state[currentDataType].startDate;
+    delete state[currentDataType].endDate;
+    state[currentDataType].currentPage = 1; // Reset ke halaman 1
+  }
+
+  // Eksekusi filter bawaan
+  fetchAndUpdateData("", filter);
+  document.getElementById("dropdownFilterMenu").classList.add("hidden");
 }
+
 
 // ---------------------------------------
 // LOAD DATA FUNCTIONS
@@ -290,12 +312,17 @@ function updatePagination(paginationContainer, onPageChange) {
   };
 
   function onPageChange(page) {
-    // Update state halaman saat ini
     if (!state[currentDataType]) {
       state[currentDataType] = {};
     }
     state[currentDataType].currentPage = page;
-    fetchAndUpdateData(detail_id);
+    
+    // CEK: Apakah ada custom action (seperti fetchByDateRange) yang dikirim?
+    if (typeof customAction === 'function') {
+      customAction(page); // Jika ada, jalankan fungsi custom tersebut
+    } else {
+      fetchAndUpdateData(detail_id); // Jika tidak, jalankan global default
+    }
   }
 }
 

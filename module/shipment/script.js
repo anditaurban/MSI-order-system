@@ -473,3 +473,83 @@ function printCombinedShippingLabels(shipmentIds) {
   const param = shipmentIds.join(",");
   window.open(`/print/shipping_label_combined.html?ids=${param}`, "_blank");
 }
+
+
+
+async function fetchByDateRange(page = 1) {
+  const startDate = document.getElementById('customStartDate').value;
+  const endDate = document.getElementById('customEndDate').value;
+
+  if (!startDate || !endDate) {
+    Swal.fire('Perhatian', 'Harap isi Start Date dan End Date terlebih dahulu!', 'warning');
+    return;
+  }
+
+  if (new Date(startDate) > new Date(endDate)) {
+    Swal.fire('Perhatian', 'Start Date tidak boleh lebih besar dari End Date!', 'warning');
+    return;
+  }
+
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = `<tr><td colspan="${colSpanCount}" class="text-center py-4">Memuat data...</td></tr>`;
+
+  try {
+    // ENDPOINT TERPISAH ADA DI SINI (Memasukkan parameter page dan tanggal)
+    const url = `${baseUrl}/table/sales_shipment_msi/${owner_id}/${page}?start_date=${startDate}&end_date=${endDate}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+    const listData = result.tableData || []; 
+
+    if (listData.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="${colSpanCount}" class="text-center py-4 text-gray-500">Tidak ada pengiriman pada rentang tanggal tersebut.</td></tr>`;
+      return;
+    }
+
+    // Render tabel
+    tableBody.innerHTML = listData.map((item, index) => window.rowTemplate(item, index, 10)).join('');
+
+    // --- SETUP UNTUK MEMANGGIL PAGINATION GLOBAL ---
+    // Update state global HANYA untuk dibaca oleh updatePagination
+    if (!state[currentDataType]) state[currentDataType] = {};
+    state[currentDataType].currentPage = page;
+    state[currentDataType].totalPages = result.totalPages;
+    state[currentDataType].totalRecords = result.totalRecords;
+
+    // Panggil pagination global, lalu kirim fungsi INI (fetchByDateRange) sebagai callback
+    updatePagination(null, fetchByDateRange);
+
+  } catch (error) {
+    console.error('Gagal mengambil data berdasarkan tanggal:', error);
+    tableBody.innerHTML = `<tr><td colspan="${colSpanCount}" class="text-center py-4 text-red-500">Terjadi kesalahan saat mengambil data.</td></tr>`;
+  }
+}
+function toggleDateFilter() {
+  const dateContainer = document.getElementById('dateFilterContainer');
+  const dropdownMenu = document.getElementById('dropdownFilterMenu');
+
+  // Toggle tampilan container input tanggal
+  if (dateContainer.classList.contains('hidden')) {
+    dateContainer.classList.remove('hidden');
+    dateContainer.classList.add('flex'); // Gunakan flex agar sejajar
+  } else {
+    dateContainer.classList.add('hidden');
+    dateContainer.classList.remove('flex');
+    
+    // Opsional: Reset isi input tanggal jika ditutup
+    document.getElementById('customStartDate').value = '';
+    document.getElementById('customEndDate').value = '';
+  }
+
+  // Sembunyikan dropdown menu setelah memilih opsi
+  if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+    dropdownMenu.classList.add('hidden');
+  }
+}

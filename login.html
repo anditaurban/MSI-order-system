@@ -64,16 +64,21 @@
         <div id="message" class="text-sm text-red-500 text-center"></div>
       </form>
 
-      <p class="text-center text-xs text-gray-400 mt-6">© 2025 Master Supplier Indonesia</p>
+      <p class="text-center text-xs text-gray-400 mt-6">© <span id="currentYearLogin"></span> Master Supplier Indonesia</p>
     </div>
   </div>
 
   <!-- Script Login -->
   <script>
-    const script = document.createElement('script');
-    script.src = `./assets/js/auth.js?v=${new Date().getTime()}`;
-    document.body.appendChild(script);
-  </script>
+  // Script yang sudah ada untuk memuat auth.js
+  const script = document.createElement('script');
+  script.src = `./assets/js/auth.js?v=${new Date().getTime()}`;
+  document.body.appendChild(script);
+
+  // --- TAMBAHKAN KODE INI ---
+  // Mengisi tahun secara real-time
+  document.getElementById("currentYearLogin").textContent = new Date().getFullYear();
+</script>
 </body>
 
 </html>

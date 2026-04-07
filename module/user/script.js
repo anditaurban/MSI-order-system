@@ -104,9 +104,9 @@ async function openUserModal(userId = null, existingData = {}) {
       // 3. Susun Payload
       const payload = {
         app_ids: [17],          // Array of Numbers
-        company: "MSI",
+        company: "MKI",
         level: "owner",
-        owner_id: 4427,         // Number
+        owner_id: 4464,         // Number
         nama: nama,
         phone: phone,
         email: email,
@@ -188,7 +188,7 @@ async function handleDelete(userId) {
   // Key "company" ditambahkan di sini sesuai dengan screenshot API Postman
   const bodyData = { 
       user_id: userId,
-      company: "MSI" 
+      company: "MKI" 
   };
 
   Swal.fire({

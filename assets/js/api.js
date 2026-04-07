@@ -8,7 +8,7 @@ const mode = isLocalhost ? "development" : "production";
 const baseUrl =
   mode === "production"
     ? "https://prod.masterkuliner.cloud" //production
-    : "https://devngomset.katib.cloud"; //development
+    : "https://prod.masterkuliner.cloud"; //development
 const API_TOKEN =
   "3ed66de3108ce387e9d134c419c0fdd61687c3b06760419d32493b18366999d2";
 

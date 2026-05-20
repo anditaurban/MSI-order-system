@@ -111,6 +111,10 @@ async function loadAppSections() {
     ]);
 
   sectionDataDiv.innerHTML = `${headNavbar}${sideNavbar}${mainContent}${footNavbar}${footer}`;
+  const yearElement = document.getElementById("currentYear");
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
   modedev();
   addSideNavListeners();
 

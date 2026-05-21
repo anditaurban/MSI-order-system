@@ -561,111 +561,103 @@ function handleCourierChange() {
   // kamu bisa lanjutkan fetch tarif berdasarkan berat dan kota jika perlu
 }
 
-function loadDetailSales(Id, Detail) {
+async function loadDetailSales(Id, Detail) {
   window.detail_id = Id;
   window.detail_desc = Detail;
 
-  // 1. Ganti ke endpoint MSI sesuai struktur terbaru
-  fetch(`${baseUrl}/detail/sales_msi/${Id}`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
-  })
-    .then((res) => res.json())
-    .then(({ detail }) => {
-      // Pastikan loadProdukList selesai agar dropdown produk di tabel tidak kosong
-      return loadProdukList(detail.customer_id).then(() => detail);
-    })
-    .then((detail) => {
-      // --- LOGIKA TOGGLE TOMBOL ---
-      const btnSimpan = document.getElementById("btnSimpan");
-      const btnUpdate = document.getElementById("btnUpdate");
-
-      if (btnSimpan && btnUpdate) {
-        btnSimpan.classList.add("hidden"); // Sembunyikan tombol Simpan
-        btnUpdate.classList.remove("hidden"); // Tampilkan tombol Update
-      }
-
-      // --- PENGISIAN FORM IDENTITAS ---
-      document.getElementById("formTitle").innerText = `UPDATE FAKTUR ${detail_desc}`;
-      document.getElementById("tanggal").value = formatDateForInput(detail.date);
-      document.getElementById("klien").value = detail.customer || "";
-      document.getElementById("klien_id").value = detail.customer_id || "";
-
-      // Pengecekan aman untuk customerList jika belum termuat sepenuhnya
-      const safeCustomerList = typeof customerList !== 'undefined' ? customerList : [];
-      const mitraData = safeCustomerList.find((c) => c.pelanggan_id == detail.customer_id);
-      const mem_id = detail.membership_id || (mitraData ? mitraData.membership_id : null);
-      
-      // Setup Badge Membership
-      let memConfig = null;
-      if (mem_id == 1) memConfig = { text: 'FREE', classes: ['bg-gray-200', 'text-gray-600'] };
-      else if (mem_id == 2) memConfig = { text: 'VIP', classes: ['bg-yellow-400', 'text-yellow-900'] };
-      updateBadge('membershipBadge', memConfig);
-
-      // Setup Badge WhatsApp (Gunakan String() agar .trim() tidak error jika nilainya angka)
-      const waNumber = detail.whatsapp || detail.phone;
-      if (waNumber && String(waNumber).trim() !== '') {
-          updateBadge('waBadge', memConfig);
-      } else {
-          updateBadge('waBadge', null);
-      }
-
-      // 2. Sinkronisasi Dropdown PIC
-      // Pastikan mitraData dan array customer_pic tersedia sebelum diproses
-      if (mitraData && mitraData.customer_pic) {
-        loadPicToSelect(mitraData.customer_pic, mitraData);
-        document.getElementById("selectPic").value = detail.contact_id || "";
-      }
-
-      // 3. Set Field Detail
-      document.getElementById("contact_id").value = detail.contact_id || 0;
-      document.getElementById("no_hp").value = waNumber || ""; // Gunakan variabel yang sudah divalidasi
-      document.getElementById("alamat").value = detail.address || "";
-      document.getElementById("city").value = detail.region_name || "";
-
-      // 4. Set Field Finansial & Dropdown Lainnya
-      document.getElementById("inputDiskon").value = (detail.discount_nominal || 0).toLocaleString("id-ID");
-      document.getElementById("inputShipping").value = (detail.shipping || 0).toLocaleString("id-ID");
-      document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocaleString("id-ID");
-
-      document.getElementById("salesman").value = detail.salesman_id || "";
-      document.getElementById("selectType").value = detail.type_id || "";
-      document.getElementById("selectCourier").value = detail.courier_id || "";
-      document.getElementById("courierNote").value = detail.courier_note || "";
-      document.getElementById("catatan").value = detail.catatan || "";
-      document.getElementById("syaratketentuan").value = detail.syaratketentuan || "";
-      document.getElementById("termpayment").value = detail.termpayment || "";
-
-      // 5. Load Tabel Item Produk
-      const tbody = document.getElementById("tabelItem");
-      tbody.innerHTML = "";
-      
-      // Pastikan sales_detail ada dan benar-benar sebuah Array
-      if (detail.sales_detail && Array.isArray(detail.sales_detail)) {
-        detail.sales_detail.forEach((item) => {
-          tambahItem();
-          const row = tbody.lastElementChild;
-          if (row) {
-            row.querySelector(".searchProduk").value = item.product || "";
-            row.querySelector(".itemNama").value = item.product_id || "";
-            row.querySelector(".itemQty").value = item.qty || 1;
-            row.querySelector(".itemHarga").value = (item.unit_price || 0).toLocaleString("id-ID");
-            row.querySelector(".itemBerat").innerText = item.weight || 0;
-            row.querySelector(".itemDiskon").value = (item.discount_price || 0).toLocaleString("id-ID");
-          }
-        });
-      }
-
-      recalculateTotal();
-    })
-    .catch((err) => {
-      console.error("Gagal load detail MSI:", err);
-      // Memastikan SweetAlert muncul tepat di tengah dengan format standar
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Gagal memuat detail faktur'
-      });
+  try {
+    const res = await fetch(`${baseUrl}/detail/sales_msi/${Id}`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
     });
+    
+    const { detail } = await res.json();
+    
+    // Pastikan list produk termuat dulu
+    await loadProdukList(detail.customer_id);
+
+    // --- LOGIKA TOGGLE TOMBOL ---
+    const btnSimpan = document.getElementById("btnSimpan");
+    const btnUpdate = document.getElementById("btnUpdate");
+    if (btnSimpan && btnUpdate) {
+      btnSimpan.classList.add("hidden"); 
+      btnUpdate.classList.remove("hidden"); 
+    }
+
+    // --- PENGISIAN FORM IDENTITAS ---
+    document.getElementById("formTitle").innerText = `UPDATE FAKTUR ${detail_desc}`;
+    document.getElementById("tanggal").value = formatDateForInput(detail.date);
+    document.getElementById("klien").value = detail.customer || "";
+    document.getElementById("klien_id").value = detail.customer_id || "";
+
+    // Mapping Key yang benar: Dahulukan whatsapp, baru fallback ke phone
+    document.getElementById("no_hp").value = detail.whatsapp || detail.phone || "";
+    
+    // Mapping Key yang benar: Gunakan 'address' untuk jalan, 'region_name' untuk kota
+    document.getElementById("alamat").value = detail.address || detail.alamat || "";
+    document.getElementById("city").value = detail.region_name || "";
+
+    // Set Value Dropdown (Sekarang aman karena <option> sudah dirender oleh initPage)
+    document.getElementById("salesman").value = detail.salesman_id || "";
+    document.getElementById("selectType").value = detail.type_id || "";
+    document.getElementById("selectCourier").value = detail.courier_id || "";
+
+    // Mapping untuk Status Paket & Pengiriman
+    const statPkg = document.getElementById("statusPackage");
+    if (statPkg) statPkg.innerText = detail.status_package || "-";
+    const statShip = document.getElementById("statusShipment");
+    if (statShip) statShip.innerText = detail.status_shipment || "-";
+
+    // --- SINKRONISASI PIC ---
+    const safeCustomerList = typeof customerList !== 'undefined' ? customerList : [];
+    const mitraData = safeCustomerList.find((c) => c.pelanggan_id == detail.customer_id);
+    
+    if (mitraData && mitraData.customer_pic) {
+       loadPicToSelect(mitraData.customer_pic, mitraData);
+       // JSON endpoint tidak mengeluarkan contact_id secara eksplisit, 
+       // fallback ke 0 atau cocokan dengan pic_name jika diperlukan di masa depan.
+       document.getElementById("selectPic").value = detail.contact_id || ""; 
+       document.getElementById("contact_id").value = detail.contact_id || 0;
+    }
+
+    // --- FINANSIAL ---
+    document.getElementById("inputDiskon").value = (detail.discount_nominal || 0).toLocaleString("id-ID");
+    document.getElementById("inputShipping").value = (detail.shipping || 0).toLocaleString("id-ID");
+    document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocaleString("id-ID");
+    
+    document.getElementById("courierNote").value = detail.courier_note || "";
+    document.getElementById("catatan").value = detail.catatan || "";
+    document.getElementById("syaratketentuan").value = detail.syaratketentuan || "";
+    document.getElementById("termpayment").value = detail.termpayment || "";
+
+    // --- LOAD TABEL ITEM PRODUK ---
+    const tbody = document.getElementById("tabelItem");
+    tbody.innerHTML = ""; // Bersihkan state tabel sebelumnya
+    
+    if (detail.sales_detail && Array.isArray(detail.sales_detail)) {
+      detail.sales_detail.forEach((item) => {
+        tambahItem();
+        const row = tbody.lastElementChild;
+        if (row) {
+          row.querySelector(".searchProduk").value = item.product || "";
+          row.querySelector(".itemNama").value = item.product_id || "";
+          row.querySelector(".itemQty").value = item.qty || 1;
+          row.querySelector(".itemHarga").value = (item.unit_price || 0).toLocaleString("id-ID");
+          row.querySelector(".itemBerat").innerText = item.weight || 0;
+          row.querySelector(".itemDiskon").value = (item.discount_price || 0).toLocaleString("id-ID");
+        }
+      });
+    }
+
+    recalculateTotal();
+  } catch (err) {
+    console.error("Gagal load detail MSI:", err);
+    // Notifikasi standar di tengah layar sesuai standar UI kamu
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Gagal memuat detail faktur'
+    });
+  }
 }
 function formatDateForInput(dateStr) {
   const [d, m, y] = dateStr.split("/");

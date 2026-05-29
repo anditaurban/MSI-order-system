@@ -205,8 +205,6 @@ function tambahItem() {
     <td class="px-3 py-2 border text-right"><input type="text" class="w-full border rounded px-2 text-right itemHarga" oninput="recalculateTotal()" /></td>
     <td class="px-3 py-2 border text-right itemBerat hidden">0</td>
     <td class="px-3 py-2 border text-right"><input type="text" class="w-full border rounded px-2 text-right itemDiskon" oninput="recalculateTotal()" /></td>
-    <td class="px-3 py-2 border text-right itemSubtotal">0</td>
-    
     <td class="px-3 py-2 border text-center">
       <button onclick="this.closest('tr').remove(); recalculateTotal();" class="text-red-500 hover:underline">🗑️</button>
     </td>
@@ -265,56 +263,122 @@ function updateBadge(elementId, config) {
   }
 }
 
-function recalculateTotal() {
-  const rows = document.querySelectorAll("#tabelItem tr");
-  let subtotal = 0;
-  let weight = 0;
-  rows.forEach((row) => {
-    const qty = parseFloat(
-      row.querySelector(".itemQty")?.value.replace(/[^\d]/g, "") || 0,
-    );
-    const harga = parseFloat(
-      row.querySelector(".itemHarga")?.value.replace(/[^\d]/g, "") || 0,
-    );
-    const itemdiskon = parseFloat(
-      row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0,
-    );
-    const berat = parseFloat(
-      row.querySelector(".itemBerat")?.innerText.replace(/[^\d]/g, "") || 0,
-    );
-    const sub = qty * harga - itemdiskon;
-    subtotal += sub;
-    weight += qty * berat;
-    row.querySelector(".itemSubtotal").innerText =
-      `${sub.toLocaleString("id-ID")}`;
-  });
-  const diskon = parseInt(
-    document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0,
-  );
-  const mp_admin = parseInt(
-    document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0,
-  );
-  const shipping = parseInt(
-    document.getElementById("inputShipping").value.replace(/[^\d]/g, "") || 0,
-  );
-  const pajak = Math.round(0 * subtotal);
-  const total = subtotal - diskon + pajak + shipping + mp_admin;
-  document.getElementById("subtotal").innerText =
-    `${subtotal.toLocaleString("id-ID")}`;
-  document.getElementById("diskon").innerText =
-    `${diskon.toLocaleString("id-ID")}`;
-  document.getElementById("pajak").innerText =
-    `${pajak.toLocaleString("id-ID")}`;
-  document.getElementById("mp_admin").innerText =
-    `${mp_admin.toLocaleString("id-ID")}`;
-  document.getElementById("ongkir").innerText =
-    `${shipping.toLocaleString("id-ID")}`;
-  document.getElementById("total").innerText =
-    `${total.toLocaleString("id-ID")}`;
-  document.getElementById("totalBerat").innerText =
-    `${weight.toLocaleString("id-ID")} gr`;
+// Variabel penanda mana yang terakhir diedit
+lastEditedDiscount = 'nominal'; 
+
+function handleInputPersen() {
+  lastEditedDiscount = 'persen';
+  recalculateTotal();
 }
 
+function handleInputNominal(el) {
+  lastEditedDiscount = 'nominal';
+  
+  // Format nominal menjadi format ribuan yang formal secara otomatis
+  let raw = el.value.replace(/[^\d]/g, "");
+  if (!raw) {
+    el.value = "";
+  } else {
+    el.value = parseInt(raw, 10).toLocaleString("id-ID");
+  }
+  
+  recalculateTotal();
+}
+
+function recalculateTotal() {
+  const rows = document.querySelectorAll("#tabelItem tr");
+  
+  let subtotalKotor = 0; 
+  let totalDiskonItem = 0; 
+  let weight = 0;
+
+  rows.forEach((row) => {
+    const qty = parseFloat(row.querySelector(".itemQty")?.value.replace(/[^\d]/g, "") || 0);
+    const harga = parseFloat(row.querySelector(".itemHarga")?.value.replace(/[^\d]/g, "") || 0);
+    const itemdiskon = parseFloat(row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0);
+    const berat = parseFloat(row.querySelector(".itemBerat")?.innerText.replace(/[^\d]/g, "") || 0);
+    
+    const subKotor = qty * harga; 
+    
+    subtotalKotor += subKotor;
+    totalDiskonItem += itemdiskon; 
+    weight += qty * berat;
+  });
+
+  const mp_admin = parseInt(document.getElementById("inputmp_admin")?.value.replace(/[^\d]/g, "") || 0);
+  const shipping = parseInt(document.getElementById("inputShipping")?.value.replace(/[^\d]/g, "") || 0);
+  
+  // --- KALKULASI DISKON MEMBERSHIP DINAMIS ---
+  // Dasar perhitungan diskon membership adalah subtotal yang sudah dikurangi diskon item
+  const baseDiskon = subtotalKotor - totalDiskonItem; 
+  
+  let diskonPersen = parseFloat(document.getElementById("inputDiskonPersen")?.value || 0);
+  let diskonNominal = parseInt(document.getElementById("inputDiskon")?.value.replace(/[^\d]/g, "") || 0);
+
+  if (lastEditedDiscount === 'persen') {
+    // Jika ngetik persen, hitung dan update value nominalnya
+    diskonNominal = Math.round(baseDiskon * (diskonPersen / 100));
+    const elDiskonNominal = document.getElementById("inputDiskon");
+    if (elDiskonNominal) {
+       elDiskonNominal.value = diskonNominal === 0 ? "0" : diskonNominal.toLocaleString("id-ID");
+    }
+  } else {
+    // Jika ngetik nominal (atau jika user nambah produk di tabel), hitung dan update persennya
+    if (baseDiskon > 0) {
+      diskonPersen = (diskonNominal / baseDiskon) * 100;
+      const elDiskonPersen = document.getElementById("inputDiskonPersen");
+      if (elDiskonPersen) {
+         // Dibulatkan maksimal 2 angka di belakang koma biar rapi
+         elDiskonPersen.value = parseFloat(diskonPersen.toFixed(2));
+      }
+    } else {
+      const elDiskonPersen = document.getElementById("inputDiskonPersen");
+      if (elDiskonPersen) elDiskonPersen.value = 0;
+    }
+  }
+
+  const totalDiskonSemua = totalDiskonItem + diskonNominal;
+
+  // --- KALKULASI GRAND TOTAL ---
+  const pajak = Math.round(0 * (subtotalKotor - totalDiskonSemua)); 
+  const grandTotal = subtotalKotor - totalDiskonSemua + pajak + shipping + mp_admin;
+
+  // --- INJECT KE UI RINGKASAN ---
+  const elSubtotal = document.getElementById("subtotal");
+  if(elSubtotal) elSubtotal.innerText = `${subtotalKotor.toLocaleString("id-ID")}`;
+  
+  const elDiskonItem = document.getElementById("diskonItem");
+  if(elDiskonItem) elDiskonItem.innerText = `${totalDiskonItem.toLocaleString("id-ID")}`;
+  
+  const elDiskonMembership = document.getElementById("diskonMembership");
+  if(elDiskonMembership) elDiskonMembership.innerText = `${diskonNominal.toLocaleString("id-ID")}`;
+  
+  const elPajak = document.getElementById("pajak");
+  if(elPajak) elPajak.innerText = `${pajak.toLocaleString("id-ID")}`;
+  
+  const elMpAdmin = document.getElementById("mp_admin");
+  if(elMpAdmin) elMpAdmin.innerText = `${mp_admin.toLocaleString("id-ID")}`;
+  
+  const elOngkir = document.getElementById("ongkir");
+  if(elOngkir) elOngkir.innerText = `${shipping.toLocaleString("id-ID")}`;
+  
+  const elTotal = document.getElementById("total");
+  if(elTotal) elTotal.innerText = `${grandTotal.toLocaleString("id-ID")}`;
+  
+  const elTotalBerat = document.getElementById("totalBerat");
+  if(elTotalBerat) elTotalBerat.innerText = `${weight.toLocaleString("id-ID")} gr`;
+
+  // --- SINKRONISASI SISA TAGIHAN SECARA LIVE ---
+  const uangMasuk = window.totalSudahDibayar || 0;
+  let sisaTagihanDinamis = grandTotal - uangMasuk;
+  if (sisaTagihanDinamis < 0) sisaTagihanDinamis = 0; 
+
+  const elTotalInvoice = document.getElementById("paymentTotalInvoice");
+  const elSisaTagihan = document.getElementById("paymentRemaining");
+
+  if (elTotalInvoice) elTotalInvoice.innerText = `Rp ${grandTotal.toLocaleString("id-ID")}`;
+  if (elSisaTagihan) elSisaTagihan.innerText = `Rp ${sisaTagihanDinamis.toLocaleString("id-ID")}`;
+}
 function setTodayDate() {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -326,7 +390,7 @@ function setTodayDate() {
 function formatNumberInputs() {
   document
     .querySelectorAll(
-      ".itemHarga, #inputDiskon, #inputShipping, #inputmp_admin",
+      ".itemHarga, .itemDiskon, #inputShipping, #inputmp_admin" 
     )
     .forEach((input) => {
       input.addEventListener("input", () => {
@@ -351,19 +415,25 @@ async function submitInvoice() {
         "warning",
       );
 
+    let totalDiskonItem = 0; // Siapkan variabel penampung
+
     const sales_detail = Array.from(rows).map((row) => {
       const select = row.querySelector(".itemNama");
+      const diskon_produk = parseInt(row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0);
+      
+      totalDiskonItem += diskon_produk; // Akumulasi total diskon
+
       return {
         product_id: parseInt(select.value),
         quantity: parseInt(row.querySelector(".itemQty").value || 0),
-        sale_price: parseInt(
-          row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0,
-        ),
-        discount_price: parseInt(
-          row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0,
-        ),
+        sale_price: parseInt(row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0),
+        discount_price: diskon_produk,
       };
     });
+
+    // Ambil value dari form sebelum menyusun body
+    const diskonMembershipPersen = parseFloat(document.getElementById("inputDiskonPersen").value || 0);
+    const diskonMembershipNominal = parseInt(document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0);
 
     const body = {
       owner_id: owner_id,
@@ -373,24 +443,29 @@ async function submitInvoice() {
       contact_id: parseInt(document.getElementById("contact_id").value) || 0,
       salesman_id: parseInt(document.getElementById("salesman").value || 0),
       type_id: parseInt(document.getElementById("selectType").value || 0),
-      discount_nominal: parseInt(
-        document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0,
-      ),
+      
+      // DISKON DAFTAR ITEM
+      discount_nominal: totalDiskonItem, 
+      
+      // PAJAK
       tax_percent: 0,
       tax: 0,
-      shipping: parseInt(
-        document.getElementById("inputShipping").value.replace(/[^\d]/g, "") ||
-          0,
-      ),
-      mp_admin: parseInt(
-        document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") ||
-          0,
-      ),
+      
+      // DISKON MEMBERSHIP (SESUAI PAYLOAD)
+      membership_discount_percent: diskonMembershipPersen,
+      membership_discount_nominal: diskonMembershipNominal, // Typo disengaja menyesuaikan API
+      
+      // BIAYA LAIN-LAIN
       courier_id: parseInt(document.getElementById("selectCourier").value || 0),
       courier_note: document.getElementById("courierNote").value,
+      shipping: parseInt(document.getElementById("inputShipping").value.replace(/[^\d]/g, "") || 0),
+      "mp_admin": parseInt(document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0), // Memakai strip menyesuaikan API
+      
+      // KETERANGAN
       catatan: document.getElementById("catatan").value,
       syaratketentuan: document.getElementById("syaratketentuan").value,
       termpayment: document.getElementById("termpayment").value,
+      
       sales_detail: sales_detail,
     };
 
@@ -433,19 +508,25 @@ async function updateInvoice() {
     if (!konfirmasi.isConfirmed) return;
 
     const rows = document.querySelectorAll("#tabelItem tr");
+    let totalDiskonItem = 0; // Siapkan variabel penampung
+
     const sales_detail = Array.from(rows).map((row) => {
       const select = row.querySelector(".itemNama");
+      const diskon_produk = parseInt(row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0);
+      
+      totalDiskonItem += diskon_produk; // Akumulasi total diskon
+
       return {
         product_id: parseInt(select.value),
         quantity: parseInt(row.querySelector(".itemQty").value || 0),
-        sale_price: parseInt(
-          row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0,
-        ),
-        discount_price: parseInt(
-          row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0,
-        ),
+        sale_price: parseInt(row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0),
+        discount_price: diskon_produk,
       };
     });
+
+    // Ambil value dari form sebelum menyusun body
+    const diskonMembershipPersen = parseFloat(document.getElementById("inputDiskonPersen").value || 0);
+    const diskonMembershipNominal = parseInt(document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0);
 
     const body = {
       owner_id: owner_id,
@@ -455,27 +536,31 @@ async function updateInvoice() {
       contact_id: parseInt(document.getElementById("contact_id").value) || 0,
       salesman_id: parseInt(document.getElementById("salesman").value || 0),
       type_id: parseInt(document.getElementById("selectType").value || 0),
-      discount_nominal: parseInt(
-        document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0,
-      ),
+      
+      // DISKON DAFTAR ITEM
+      discount_nominal: totalDiskonItem, 
+      
+      // PAJAK
       tax_percent: 0,
       tax: 0,
-      shipping: parseInt(
-        document.getElementById("inputShipping").value.replace(/[^\d]/g, "") ||
-          0,
-      ),
-      mp_admin: parseInt(
-        document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") ||
-          0,
-      ),
+      
+      // DISKON MEMBERSHIP (SESUAI PAYLOAD)
+      membership_discount_percent: diskonMembershipPersen,
+      membership_discount_nominal: diskonMembershipNominal, // Typo disengaja menyesuaikan API
+      
+      // BIAYA LAIN-LAIN
       courier_id: parseInt(document.getElementById("selectCourier").value || 0),
       courier_note: document.getElementById("courierNote").value,
+      shipping: parseInt(document.getElementById("inputShipping").value.replace(/[^\d]/g, "") || 0),
+      "mp_admin": parseInt(document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0), // Memakai strip menyesuaikan API
+      
+      // KETERANGAN
       catatan: document.getElementById("catatan").value,
       syaratketentuan: document.getElementById("syaratketentuan").value,
       termpayment: document.getElementById("termpayment").value,
+      
       sales_detail: sales_detail,
     };
-
     // PERBAIKAN: Gunakan metode PUT dan pastikan ID faktur ada di URL
     const res = await fetch(`${baseUrl}/update/sales_msi/${window.detail_id}`, {
       method: "PUT", // Gunakan PUT untuk update
@@ -561,103 +646,116 @@ function handleCourierChange() {
   // kamu bisa lanjutkan fetch tarif berdasarkan berat dan kota jika perlu
 }
 
-async function loadDetailSales(Id, Detail) {
+function loadDetailSales(Id, Detail) {
   window.detail_id = Id;
   window.detail_desc = Detail;
 
-  try {
-    const res = await fetch(`${baseUrl}/detail/sales_msi/${Id}`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-    });
-    
-    const { detail } = await res.json();
-    
-    // Pastikan list produk termuat dulu
-    await loadProdukList(detail.customer_id);
+  // 1. Ganti ke endpoint MSI sesuai struktur terbaru
+  fetch(`${baseUrl}/detail/sales_msi/${Id}`, {
+    headers: { Authorization: `Bearer ${API_TOKEN}` },
+  })
+    .then((res) => res.json())
+    .then(({ detail }) => {
+      // Pastikan loadProdukList selesai agar dropdown produk di tabel tidak kosong
+      return loadProdukList(detail.customer_id).then(() => detail);
+    })
+    .then((detail) => {
+      // --- LOGIKA TOGGLE TOMBOL ---
+      const btnSimpan = document.getElementById("btnSimpan");
+      const btnUpdate = document.getElementById("btnUpdate");
 
-    // --- LOGIKA TOGGLE TOMBOL ---
-    const btnSimpan = document.getElementById("btnSimpan");
-    const btnUpdate = document.getElementById("btnUpdate");
-    if (btnSimpan && btnUpdate) {
-      btnSimpan.classList.add("hidden"); 
-      btnUpdate.classList.remove("hidden"); 
-    }
+      if (btnSimpan && btnUpdate) {
+        btnSimpan.classList.add("hidden"); // Sembunyikan tombol Simpan
+        btnUpdate.classList.remove("hidden"); // Tampilkan tombol Update
+      }
 
-    // --- PENGISIAN FORM IDENTITAS ---
-    document.getElementById("formTitle").innerText = `UPDATE FAKTUR ${detail_desc}`;
-    document.getElementById("tanggal").value = formatDateForInput(detail.date);
-    document.getElementById("klien").value = detail.customer || "";
-    document.getElementById("klien_id").value = detail.customer_id || "";
+      // --- PENGISIAN FORM IDENTITAS ---
+      document.getElementById("formTitle").innerText = `UPDATE FAKTUR ${detail_desc}`;
+      document.getElementById("tanggal").value = formatDateForInput(detail.date);
+      document.getElementById("klien").value = detail.customer || "";
+      document.getElementById("klien_id").value = detail.customer_id || "";
 
-    // Mapping Key yang benar: Dahulukan whatsapp, baru fallback ke phone
-    document.getElementById("no_hp").value = detail.whatsapp || detail.phone || "";
-    
-    // Mapping Key yang benar: Gunakan 'address' untuk jalan, 'region_name' untuk kota
-    document.getElementById("alamat").value = detail.address || detail.alamat || "";
-    document.getElementById("city").value = detail.region_name || "";
+      // Pengecekan aman untuk customerList jika belum termuat sepenuhnya
+      const safeCustomerList = typeof customerList !== 'undefined' ? customerList : [];
+      const mitraData = safeCustomerList.find((c) => c.pelanggan_id == detail.customer_id);
+      const mem_id = detail.membership_id || (mitraData ? mitraData.membership_id : null);
+      
+      // Setup Badge Membership
+      let memConfig = null;
+      if (mem_id == 1) memConfig = { text: 'FREE', classes: ['bg-gray-200', 'text-gray-600'] };
+      else if (mem_id == 2) memConfig = { text: 'VIP', classes: ['bg-yellow-400', 'text-yellow-900'] };
+      updateBadge('membershipBadge', memConfig);
 
-    // Set Value Dropdown (Sekarang aman karena <option> sudah dirender oleh initPage)
-    document.getElementById("salesman").value = detail.salesman_id || "";
-    document.getElementById("selectType").value = detail.type_id || "";
-    document.getElementById("selectCourier").value = detail.courier_id || "";
+      // Setup Badge WhatsApp (Gunakan String() agar .trim() tidak error jika nilainya angka)
+      const waNumber = detail.whatsapp || detail.phone;
+      if (waNumber && String(waNumber).trim() !== '') {
+          updateBadge('waBadge', memConfig);
+      } else {
+          updateBadge('waBadge', null);
+      }
 
-    // Mapping untuk Status Paket & Pengiriman
-    const statPkg = document.getElementById("statusPackage");
-    if (statPkg) statPkg.innerText = detail.status_package || "-";
-    const statShip = document.getElementById("statusShipment");
-    if (statShip) statShip.innerText = detail.status_shipment || "-";
+      // 2. Sinkronisasi Dropdown PIC
+      // Pastikan mitraData dan array customer_pic tersedia sebelum diproses
+      if (mitraData && mitraData.customer_pic) {
+        loadPicToSelect(mitraData.customer_pic, mitraData);
+        document.getElementById("selectPic").value = detail.contact_id || "";
+      }
 
-    // --- SINKRONISASI PIC ---
-    const safeCustomerList = typeof customerList !== 'undefined' ? customerList : [];
-    const mitraData = safeCustomerList.find((c) => c.pelanggan_id == detail.customer_id);
-    
-    if (mitraData && mitraData.customer_pic) {
-       loadPicToSelect(mitraData.customer_pic, mitraData);
-       // JSON endpoint tidak mengeluarkan contact_id secara eksplisit, 
-       // fallback ke 0 atau cocokan dengan pic_name jika diperlukan di masa depan.
-       document.getElementById("selectPic").value = detail.contact_id || ""; 
-       document.getElementById("contact_id").value = detail.contact_id || 0;
-    }
+      // 3. Set Field Detail
+      document.getElementById("contact_id").value = detail.contact_id || 0;
+      document.getElementById("no_hp").value = waNumber || ""; // Gunakan variabel yang sudah divalidasi
+      document.getElementById("alamat").value = detail.address || "";
+      document.getElementById("city").value = detail.region_name || "";
 
-    // --- FINANSIAL ---
-    document.getElementById("inputDiskon").value = (detail.discount_nominal || 0).toLocaleString("id-ID");
-    document.getElementById("inputShipping").value = (detail.shipping || 0).toLocaleString("id-ID");
-    document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocaleString("id-ID");
-    
-    document.getElementById("courierNote").value = detail.courier_note || "";
-    document.getElementById("catatan").value = detail.catatan || "";
-    document.getElementById("syaratketentuan").value = detail.syaratketentuan || "";
-    document.getElementById("termpayment").value = detail.termpayment || "";
+      // 4. Set Field Finansial & Dropdown Lainnya
+// Tarik data persentase dan langsung masukkan ke field
+document.getElementById("inputDiskonPersen").value = detail.membership_discount_percent || 0;
 
-    // --- LOAD TABEL ITEM PRODUK ---
-    const tbody = document.getElementById("tabelItem");
-    tbody.innerHTML = ""; // Bersihkan state tabel sebelumnya
-    
-    if (detail.sales_detail && Array.isArray(detail.sales_detail)) {
-      detail.sales_detail.forEach((item) => {
-        tambahItem();
-        const row = tbody.lastElementChild;
-        if (row) {
-          row.querySelector(".searchProduk").value = item.product || "";
-          row.querySelector(".itemNama").value = item.product_id || "";
-          row.querySelector(".itemQty").value = item.qty || 1;
-          row.querySelector(".itemHarga").value = (item.unit_price || 0).toLocaleString("id-ID");
-          row.querySelector(".itemBerat").innerText = item.weight || 0;
-          row.querySelector(".itemDiskon").value = (item.discount_price || 0).toLocaleString("id-ID");
-        }
+// Tarik data nominal dan format ke dalam bentuk ribuan
+document.getElementById("inputDiskon").value = (detail.membership_discount_nominal || 0).toLocaleString("id-ID");
+
+document.getElementById("inputShipping").value = (detail.shipping || 0).toLocaleString("id-ID");
+document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocaleString("id-ID");
+
+      document.getElementById("salesman").value = detail.salesman_id || "";
+      document.getElementById("selectType").value = detail.type_id || "";
+      document.getElementById("selectCourier").value = detail.courier_id || "";
+      document.getElementById("courierNote").value = detail.courier_note || "";
+      document.getElementById("catatan").value = detail.catatan || "";
+      document.getElementById("syaratketentuan").value = detail.syaratketentuan || "";
+      document.getElementById("termpayment").value = detail.termpayment || "";
+
+      // 5. Load Tabel Item Produk
+      const tbody = document.getElementById("tabelItem");
+      tbody.innerHTML = "";
+      
+      // Pastikan sales_detail ada dan benar-benar sebuah Array
+      if (detail.sales_detail && Array.isArray(detail.sales_detail)) {
+        detail.sales_detail.forEach((item) => {
+          tambahItem();
+          const row = tbody.lastElementChild;
+          if (row) {
+            row.querySelector(".searchProduk").value = item.product || "";
+            row.querySelector(".itemNama").value = item.product_id || "";
+            row.querySelector(".itemQty").value = item.qty || 1;
+            row.querySelector(".itemHarga").value = (item.unit_price || 0).toLocaleString("id-ID");
+            row.querySelector(".itemBerat").innerText = item.weight || 0;
+            row.querySelector(".itemDiskon").value = (item.discount_price || 0).toLocaleString("id-ID");
+          }
+        });
+      }
+
+      recalculateTotal();
+    })
+    .catch((err) => {
+      console.error("Gagal load detail MSI:", err);
+      // Memastikan SweetAlert muncul tepat di tengah dengan format standar
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Gagal memuat detail faktur'
       });
-    }
-
-    recalculateTotal();
-  } catch (err) {
-    console.error("Gagal load detail MSI:", err);
-    // Notifikasi standar di tengah layar sesuai standar UI kamu
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Gagal memuat detail faktur'
     });
-  }
 }
 function formatDateForInput(dateStr) {
   const [d, m, y] = dateStr.split("/");
@@ -674,6 +772,8 @@ async function loadPaymentDetail(detail_id) {
     );
     const { totalInvoice, totalReceipt, totalRemainingPayment, listData } =
       await res.json();
+    
+    window.totalSudahDibayar = totalReceipt || 0;
 
     // Inject Ringkasan Pembayaran
     document.getElementById("paymentTotalInvoice").innerText =
@@ -792,7 +892,8 @@ async function sendWhatsAppInvoice() {
       no_inv,
       date,
       sales_detail,
-      discount_nominal,
+      discount_nominal,       // Diskon Item
+      discount_membership,    // Diskon Membership (Tambahkan variabel ini dari destructuring)
       shipping,
       terms,
       term_payment,
@@ -817,15 +918,19 @@ async function sendWhatsAppInvoice() {
       produkList += `${i + 1}. ${item.product} x${qty} @Rp${harga.toLocaleString("id-ID")} = Rp${total.toLocaleString("id-ID")}\n`;
     });
 
-    const pajak = Math.round(subtotal * 0);
-    const total = subtotal - discount_nominal + pajak + shipping;
+   const pajak = Math.round(subtotal * 0);
+    // Hitungan total dikurangi kedua jenis diskon
+    const total = subtotal - (discount_nominal || 0) - (discount_membership || 0) + pajak + shipping;
 
     // Susun pesan WA
     let pesan = `Hallo ${customer},\n\nBerikut tagihan untuk invoice *${no_inv}* (tgl: ${date}):\n\n`;
     pesan += produkList + "\n";
     pesan += `Subtotal: Rp${subtotal.toLocaleString("id-ID")}\n`;
-    if (discount_nominal)
-      pesan += `Diskon: Rp${discount_nominal.toLocaleString("id-ID")}\n`;
+    
+    // Tampilkan rincian diskon jika ada isinya
+    if (discount_nominal) pesan += `Diskon Item: -Rp${discount_nominal.toLocaleString("id-ID")}\n`;
+    if (discount_membership) pesan += `Diskon Membership: -Rp${discount_membership.toLocaleString("id-ID")}\n`;
+    
     pesan += `Pajak (0%): Rp${pajak.toLocaleString("id-ID")}\n`;
     if (shipping) pesan += `Ongkir: Rp${shipping.toLocaleString("id-ID")}\n`;
     pesan += `*Total Tagihan: Rp${total.toLocaleString("id-ID")}*\n\n`;

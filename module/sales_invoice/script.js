@@ -92,7 +92,6 @@ async function filterKlienSuggestions() {
   searchTimeout = setTimeout(async () => {
     try {
       // PANGGIL API DENGAN PARAMETER SEARCH
-      // Kita panggil page 1 tapi dengan query search yang diisi input user
       const res = await fetch(
         `${baseUrl}/table/client/${owner_id}/1?search=${input}`,
         {
@@ -112,47 +111,80 @@ async function filterKlienSuggestions() {
       // Render hasil pencarian dari API
       suggestionBox.innerHTML = "";
 
-results.forEach((item) => {
-  const li = document.createElement("li");
+      results.forEach((item) => {
+        const li = document.createElement("li");
 
-  // --- BAGIAN PERUBAHAN DI SINI ---
-  // Kita ambil semua 'business_category', lalu gabungkan dengan koma
-  const membershipLabel = (item.business_categories && item.business_categories.length > 0) 
-                          ? item.business_categories.map(cat => cat.business_category).join(", ") 
-                          : "No Cat";
-  // --------------------------------
+        // Gabungkan semua 'business_category' dengan koma
+        const membershipLabel = (item.business_categories && item.business_categories.length > 0) 
+                                ? item.business_categories.map(cat => cat.business_category).join(", ") 
+                                : "No Cat";
 
-  li.textContent = `${item.nama} (${membershipLabel})`;
-  li.className = "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
+        li.textContent = `${item.nama} (${membershipLabel})`;
+        li.className = "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
 
-  li.onclick = () => {
-    document.getElementById("klien").value = item.nama;
-    document.getElementById("klien_id").value = item.pelanggan_id;
-    document.getElementById("no_hp").value = item.whatsapp || "";
-    document.getElementById("alamat").value = item.alamat || "";
-    document.getElementById("city").value = item.region_name || "";
-    document.getElementById("city_id").value = item.region_id || "";
-    let memConfig = null;
-      if (item.membership_id == 1) {
-        memConfig = { text: 'FREE', classes: ['bg-gray-200', 'text-gray-600'] };
-      } else if (item.membership_id == 2) {
-        memConfig = { text: 'VIP', classes: ['bg-yellow-400', 'text-yellow-900'] };
-      }
+        // Async event click agar bisa fetch API Get Detail Client jika diperlukan
+        li.onclick = async () => {
+          document.getElementById("klien").value = item.nama;
+          document.getElementById("klien_id").value = item.pelanggan_id;
+          document.getElementById("no_hp").value = item.whatsapp || "";
+          document.getElementById("alamat").value = item.alamat || "";
+          document.getElementById("city").value = item.region_name || "";
+          document.getElementById("city_id").value = item.region_id || "";
+          
+          // --- LOGIKA PENARIKAN DISKON OTOMATIS ---
+          // 1. Coba ambil dari data list pencarian
+          let persenDiskon = item["membership discount"] || item.membership_discount || 0;
 
-      updateBadge('membershipBadge', memConfig);
+          // 2. Jika di list tidak ada (nilainya 0), hit API Detail sesuai screenshot Bu Andita
+          if (persenDiskon === 0 && item.pelanggan_id) {
+              try {
+                  const detailRes = await fetch(`${baseUrl}/detail/client/${item.pelanggan_id}`, {
+                      headers: { Authorization: `Bearer ${API_TOKEN}` }
+                  });
+                  const detailJson = await detailRes.json();
+                  
+                  if (detailJson && detailJson.detail) {
+                      // Ambil data persennya (antisipasi nama key berspasi atau underscore)
+                      persenDiskon = detailJson.detail["membership discount"] || detailJson.detail.membership_discount || 0;
+                  }
+              } catch (err) {
+                  console.error("Gagal get detail client untuk diskon:", err);
+              }
+          }
+
+          // Masukkan hasil akhirnya ke form persen diskon membership
+          const elDiskonPersen = document.getElementById("inputDiskonPersen");
+          if (elDiskonPersen) {
+             elDiskonPersen.value = persenDiskon;
+          }
+
+          // --- LOGIKA BADGE MEMBERSHIP ---
+          let memConfig = null;
+          if (item.membership_id == 1) {
+            memConfig = { text: 'FREE', classes: ['bg-gray-200', 'text-gray-600'] };
+          } else if (item.membership_id == 2) {
+            memConfig = { text: 'VIP', classes: ['bg-yellow-400', 'text-yellow-900'] };
+          }
+
+          updateBadge('membershipBadge', memConfig);
+            
+          if (item.whatsapp && item.whatsapp.trim() !== '') {
+             updateBadge('waBadge', memConfig);
+          } else {
+             updateBadge('waBadge', null);
+          }
+          
+          loadPicToSelect(item.customer_pic, item);
+          suggestionBox.classList.add("hidden");
+          await loadProdukList(item.pelanggan_id);
+          
+          // Panggil fungsi ini agar nilai Nominal (Rp) otomatis terhitung berdasarkan Persen yang baru ditarik
+          recalculateTotal(); 
+        };
+
+        suggestionBox.appendChild(li);
+      });
       
-      // Terapkan ke WA jika nomor ada
-      if (item.whatsapp && item.whatsapp.trim() !== '') {
-         updateBadge('waBadge', memConfig);
-      } else {
-         updateBadge('waBadge', null);
-      }
-    loadPicToSelect(item.customer_pic, item);
-    suggestionBox.classList.add("hidden");
-  };
-
-  suggestionBox.appendChild(li);
-});
       suggestionBox.classList.remove("hidden");
     } catch (err) {
       console.error("Gagal search mitra:", err);
@@ -264,26 +296,7 @@ function updateBadge(elementId, config) {
 }
 
 // Variabel penanda mana yang terakhir diedit
-lastEditedDiscount = 'nominal'; 
 
-function handleInputPersen() {
-  lastEditedDiscount = 'persen';
-  recalculateTotal();
-}
-
-function handleInputNominal(el) {
-  lastEditedDiscount = 'nominal';
-  
-  // Format nominal menjadi format ribuan yang formal secara otomatis
-  let raw = el.value.replace(/[^\d]/g, "");
-  if (!raw) {
-    el.value = "";
-  } else {
-    el.value = parseInt(raw, 10).toLocaleString("id-ID");
-  }
-  
-  recalculateTotal();
-}
 
 function recalculateTotal() {
   const rows = document.querySelectorAll("#tabelItem tr");
@@ -308,33 +321,21 @@ function recalculateTotal() {
   const mp_admin = parseInt(document.getElementById("inputmp_admin")?.value.replace(/[^\d]/g, "") || 0);
   const shipping = parseInt(document.getElementById("inputShipping")?.value.replace(/[^\d]/g, "") || 0);
   
-  // --- KALKULASI DISKON MEMBERSHIP DINAMIS ---
-  // Dasar perhitungan diskon membership adalah subtotal yang sudah dikurangi diskon item
+  // --- KALKULASI DISKON MEMBERSHIP OTOMATIS ---
   const baseDiskon = subtotalKotor - totalDiskonItem; 
+  const diskonMembershipPersen = parseFloat(document.getElementById("inputDiskonPersen")?.value || 0);
   
-  let diskonPersen = parseFloat(document.getElementById("inputDiskonPersen")?.value || 0);
-  let diskonNominal = parseInt(document.getElementById("inputDiskon")?.value.replace(/[^\d]/g, "") || 0);
+  let diskonNominal = 0;
+  
+  // Konversi otomatis dari Persen ke Nominal Rupiah
+  if (baseDiskon > 0) {
+    diskonNominal = Math.round(baseDiskon * (diskonMembershipPersen / 100));
+  }
 
-  if (lastEditedDiscount === 'persen') {
-    // Jika ngetik persen, hitung dan update value nominalnya
-    diskonNominal = Math.round(baseDiskon * (diskonPersen / 100));
-    const elDiskonNominal = document.getElementById("inputDiskon");
-    if (elDiskonNominal) {
-       elDiskonNominal.value = diskonNominal === 0 ? "0" : diskonNominal.toLocaleString("id-ID");
-    }
-  } else {
-    // Jika ngetik nominal (atau jika user nambah produk di tabel), hitung dan update persennya
-    if (baseDiskon > 0) {
-      diskonPersen = (diskonNominal / baseDiskon) * 100;
-      const elDiskonPersen = document.getElementById("inputDiskonPersen");
-      if (elDiskonPersen) {
-         // Dibulatkan maksimal 2 angka di belakang koma biar rapi
-         elDiskonPersen.value = parseFloat(diskonPersen.toFixed(2));
-      }
-    } else {
-      const elDiskonPersen = document.getElementById("inputDiskonPersen");
-      if (elDiskonPersen) elDiskonPersen.value = 0;
-    }
+  // Inject hasil konversi otomatis ke field input "Diskon Membership (Rp)"
+  const elDiskonNominal = document.getElementById("inputDiskon");
+  if (elDiskonNominal) {
+     elDiskonNominal.value = diskonNominal === 0 ? "0" : diskonNominal.toLocaleString("id-ID");
   }
 
   const totalDiskonSemua = totalDiskonItem + diskonNominal;
@@ -368,7 +369,7 @@ function recalculateTotal() {
   const elTotalBerat = document.getElementById("totalBerat");
   if(elTotalBerat) elTotalBerat.innerText = `${weight.toLocaleString("id-ID")} gr`;
 
-  // --- SINKRONISASI SISA TAGIHAN SECARA LIVE ---
+  // --- SINKRONISASI SISA TAGIHAN ---
   const uangMasuk = window.totalSudahDibayar || 0;
   let sisaTagihanDinamis = grandTotal - uangMasuk;
   if (sisaTagihanDinamis < 0) sisaTagihanDinamis = 0; 

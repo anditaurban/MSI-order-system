@@ -149,15 +149,15 @@
           <!-- Diskon, Kurir, Ongkir -->
           <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium">💸 Diskon Membership (%)</label>
-                <input type="number" id="inputDiskonPersen" value="0" min="0" max="100" step="any" class="w-full border px-3 py-2 rounded" oninput="handleInputPersen()" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium">💸 Diskon Membership (Rp)</label>
-                <input type="text" id="inputDiskon" value="0" class="w-full border px-3 py-2 rounded" oninput="handleInputNominal(this)" />
-              </div>
-            </div>
+  <div>
+    <label class="block text-sm font-medium">💸 Diskon Membership (%)</label>
+    <input type="number" id="inputDiskonPersen" value="0" class="w-full border px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-600" readonly />
+  </div>
+  <div>
+    <label class="block text-sm font-medium">💸 Diskon Membership (Rp)</label>
+    <input type="text" id="inputDiskon" value="0" class="w-full border px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-600" readonly />
+  </div>
+</div>
             <div>
               <label class="block text-sm font-medium">🛍️ Biaya Lain-lain (Rp)</label>
               <input type="text" id="inputmp_admin" value="0" class="w-full border px-3 py-2 rounded"

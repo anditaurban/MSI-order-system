@@ -267,8 +267,8 @@ function filterProdukDropdownCustom(inputEl) {
       tr.querySelector(".itemHarga").value =
         p.sale_price.toLocaleString("id-ID");
       tr.querySelector(".itemBerat").innerText = p.weight || 0;
-      const diskonProduk = p.discount_price || p.discount || 0;
-      tr.querySelector(".itemDiskon").value = diskonProduk.toLocaleString("id-ID");
+      const diskonProduk = p.discount_nominal || 0;
+      tr.querySelector(".itemDiskon").value = diskonProduk.toLocaleString('id-ID');
       const opt = Array.from(select.options).find(
         (o) => o.value == p.product_id,
       );

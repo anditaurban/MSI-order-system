@@ -8,33 +8,21 @@ loadTypeOrder();
 loadEmployeeList();
 
 if (window.detail_id && window.detail_desc) {
-  // loadProdukList(window.detail2_desc);
   loadDetailSales(detail_id, detail_desc);
   loadPaymentDetail(detail_id, 0);
   formatNumberInputs();
-} else {
-  // loadProdukList();
 }
 
 async function loadCustomerList(currentPage = 1) {
-  // Menambahkan default value 1
   try {
-    // Menggunakan template literal untuk memasukkan variabel currentPage
     const res = await fetch(
       `${baseUrl}/table/client/${owner_id}/${currentPage}?search=`,
       {
         headers: { Authorization: `Bearer ${API_TOKEN}` },
       },
     );
-
     const json = await res.json();
-
-    // Sesuaikan akses ke properti 'tableData' sesuai response yang Anda kirim
     customerList = json.tableData || [];
-    console.log(
-      `Data Mitra Halaman ${currentPage} Berhasil Dimuat:`,
-      customerList,
-    );
   } catch (err) {
     console.error("Gagal memuat data mitra:", err);
   }
@@ -56,8 +44,6 @@ async function loadEmployeeList() {
     const json = await res.json();
     const employeeList = json.listData || [];
 
-    console.log(employeeList);
-
     const select = document.getElementById("salesman");
     select.innerHTML = '<option value="">-- Pilih Sales --</option>';
 
@@ -72,14 +58,11 @@ async function loadEmployeeList() {
   }
 }
 
-// Variabel untuk mencegah request bertabrakan (debounce)
-
 
 async function filterKlienSuggestions() {
   const input = document.getElementById("klien").value.toLowerCase().trim();
   const suggestionBox = document.getElementById("klienSuggestions");
 
-  // Bersihkan timeout lama
   clearTimeout(searchTimeout);
 
   if (input.length < 2) {
@@ -88,10 +71,8 @@ async function filterKlienSuggestions() {
     return;
   }
 
-  // Gunakan debounce agar tidak nembak API setiap huruf (hemat kuota)
   searchTimeout = setTimeout(async () => {
     try {
-      // PANGGIL API DENGAN PARAMETER SEARCH
       const res = await fetch(
         `${baseUrl}/table/client/${owner_id}/1?search=${input}`,
         {
@@ -108,13 +89,11 @@ async function filterKlienSuggestions() {
         return;
       }
 
-      // Render hasil pencarian dari API
       suggestionBox.innerHTML = "";
 
       results.forEach((item) => {
         const li = document.createElement("li");
 
-        // Gabungkan semua 'business_category' dengan koma
         const membershipLabel = (item.business_categories && item.business_categories.length > 0) 
                                 ? item.business_categories.map(cat => cat.business_category).join(", ") 
                                 : "No Cat";
@@ -122,7 +101,6 @@ async function filterKlienSuggestions() {
         li.textContent = `${item.nama} (${membershipLabel})`;
         li.className = "px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0";
 
-        // Async event click agar bisa fetch API Get Detail Client jika diperlukan
         li.onclick = async () => {
           document.getElementById("klien").value = item.nama;
           document.getElementById("klien_id").value = item.pelanggan_id;
@@ -131,11 +109,8 @@ async function filterKlienSuggestions() {
           document.getElementById("city").value = item.region_name || "";
           document.getElementById("city_id").value = item.region_id || "";
           
-          // --- LOGIKA PENARIKAN DISKON OTOMATIS ---
-          // 1. Coba ambil dari data list pencarian
           let persenDiskon = item["membership discount"] || item.membership_discount || 0;
 
-          // 2. Jika di list tidak ada (nilainya 0), hit API Detail sesuai screenshot Bu Andita
           if (persenDiskon === 0 && item.pelanggan_id) {
               try {
                   const detailRes = await fetch(`${baseUrl}/detail/client/${item.pelanggan_id}`, {
@@ -144,7 +119,6 @@ async function filterKlienSuggestions() {
                   const detailJson = await detailRes.json();
                   
                   if (detailJson && detailJson.detail) {
-                      // Ambil data persennya (antisipasi nama key berspasi atau underscore)
                       persenDiskon = detailJson.detail["membership discount"] || detailJson.detail.membership_discount || 0;
                   }
               } catch (err) {
@@ -152,13 +126,11 @@ async function filterKlienSuggestions() {
               }
           }
 
-          // Masukkan hasil akhirnya ke form persen diskon membership
           const elDiskonPersen = document.getElementById("inputDiskonPersen");
           if (elDiskonPersen) {
              elDiskonPersen.value = persenDiskon;
           }
 
-          // --- LOGIKA BADGE MEMBERSHIP ---
           let memConfig = null;
           if (item.membership_id == 1) {
             memConfig = { text: 'FREE', classes: ['bg-gray-200', 'text-gray-600'] };
@@ -177,8 +149,6 @@ async function filterKlienSuggestions() {
           loadPicToSelect(item.customer_pic, item);
           suggestionBox.classList.add("hidden");
           await loadProdukList(item.pelanggan_id);
-          
-          // Panggil fungsi ini agar nilai Nominal (Rp) otomatis terhitung berdasarkan Persen yang baru ditarik
           recalculateTotal(); 
         };
 
@@ -189,8 +159,9 @@ async function filterKlienSuggestions() {
     } catch (err) {
       console.error("Gagal search mitra:", err);
     }
-  }, 500); // Tunggu 500ms setelah user berhenti mengetik
+  }, 500); 
 }
+
 function loadPicToSelect(picList, parentData) {
   const picSelect = document.getElementById("selectPic");
   picSelect.innerHTML = '<option value="">-- Pilih Customer (PIC) --</option>';
@@ -209,12 +180,10 @@ function loadPicToSelect(picList, parentData) {
     picSelect.appendChild(option);
   }
 
-  // Handle pengisian contact_id saja
   picSelect.onchange = (e) => {
     const selectedValue = e.target.value;
     document.getElementById("contact_id").value = selectedValue || "0";
 
-    // Trigger load produk saat PIC/Mitra sudah dipastikan terpilih
     const pelangganId = document.getElementById("klien_id").value;
     if (pelangganId) {
       loadProdukList(pelangganId);
@@ -228,7 +197,7 @@ function tambahItem() {
   row.innerHTML = `
     <td class="px-3 py-2 border">
       <input type="text" placeholder="Cari Produk..." class="w-full border rounded px-2 mb-1 searchProduk" oninput="filterProdukDropdownCustom(this)" />
-      <div class="produkDropdown hidden border bg-white shadow rounded max-h-40 overflow-y-auto z-50 absolute w-48"></div>
+      <div class="produkDropdown hidden border bg-white shadow-xl rounded max-h-40 overflow-y-auto z-[9999] absolute w-64"></div>
       <select class="itemNama hidden">
         ${produkList.map((p) => `<option value="${p.product_id}" data-harga="${p.sale_price}" data-nama="${p.product}">${p.product}</option>`).join("")}
       </select>
@@ -237,6 +206,9 @@ function tambahItem() {
     <td class="px-3 py-2 border text-right"><input type="text" class="w-full border rounded px-2 text-right itemHarga" oninput="recalculateTotal()" /></td>
     <td class="px-3 py-2 border text-right itemBerat hidden">0</td>
     <td class="px-3 py-2 border text-right"><input type="text" class="w-full border rounded px-2 text-right itemDiskon" oninput="recalculateTotal()" /></td>
+    
+    <td class="px-3 py-2 border text-right itemNeto font-semibold text-green-700 bg-gray-50">0</td>
+    
     <td class="px-3 py-2 border text-center">
       <button onclick="this.closest('tr').remove(); recalculateTotal();" class="text-red-500 hover:underline">🗑️</button>
     </td>
@@ -262,13 +234,13 @@ function filterProdukDropdownCustom(inputEl) {
     div.textContent = p.product;
     div.onclick = () => {
       inputEl.value = p.product;
-      // inputEl.closest("tr").querySelector(".itemHarga").value = p.sale_price.toLocaleString('id-ID');
       const tr = inputEl.closest("tr");
-      tr.querySelector(".itemHarga").value =
-        p.sale_price.toLocaleString("id-ID");
+      tr.querySelector(".itemHarga").value = p.sale_price.toLocaleString("id-ID");
       tr.querySelector(".itemBerat").innerText = p.weight || 0;
-      const diskonProduk = p.discount_nominal || 0;
+      
+      const diskonProduk = p.discount_nominal !== undefined ? p.discount_nominal : (p.diskon_nominal || 0);
       tr.querySelector(".itemDiskon").value = diskonProduk.toLocaleString('id-ID');
+      
       const opt = Array.from(select.options).find(
         (o) => o.value == p.product_id,
       );
@@ -281,6 +253,7 @@ function filterProdukDropdownCustom(inputEl) {
 
   dropdown.classList.remove("hidden");
 }
+
 function updateBadge(elementId, config) {
   const badge = document.getElementById(elementId);
   if (!badge) return;
@@ -295,56 +268,65 @@ function updateBadge(elementId, config) {
   }
 }
 
-// Variabel penanda mana yang terakhir diedit
-
-
 function recalculateTotal() {
   const rows = document.querySelectorAll("#tabelItem tr");
   
   let subtotalKotor = 0; 
   let totalDiskonItem = 0; 
+  let subtotalNeto = 0;
   let weight = 0;
 
   rows.forEach((row) => {
-    const qty = parseFloat(row.querySelector(".itemQty")?.value.replace(/[^\d]/g, "") || 0);
-    const harga = parseFloat(row.querySelector(".itemHarga")?.value.replace(/[^\d]/g, "") || 0);
-    const itemdiskon = parseFloat(row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0);
+    const qtyInput = row.querySelector(".itemQty");
+    const hargaInput = row.querySelector(".itemHarga");
+    const diskonInput = row.querySelector(".itemDiskon");
+
+    const qty = parseFloat(qtyInput?.value.replace(/[^\d]/g, "") || 0);
+    const harga = parseFloat(hargaInput?.value.replace(/[^\d]/g, "") || 0);
+    let itemdiskon = parseFloat(diskonInput?.value.replace(/[^\d]/g, "") || 0);
     const berat = parseFloat(row.querySelector(".itemBerat")?.innerText.replace(/[^\d]/g, "") || 0);
     
-    const subKotor = qty * harga; 
+    const kotor = qty * harga; 
     
-    subtotalKotor += subKotor;
+    // Proteksi Anti-Minus (Diskon tidak boleh lebih besar dari harga produk)
+    if (itemdiskon > kotor) {
+      itemdiskon = kotor; 
+      if (diskonInput) diskonInput.value = itemdiskon.toLocaleString("id-ID"); 
+    }
+
+    const neto = kotor - itemdiskon;
+    
+    const elNeto = row.querySelector('.itemNeto');
+    if (elNeto) elNeto.innerText = neto.toLocaleString('id-ID');
+    
+    subtotalKotor += kotor;
     totalDiskonItem += itemdiskon; 
+    subtotalNeto += neto;
     weight += qty * berat;
   });
 
   const mp_admin = parseInt(document.getElementById("inputmp_admin")?.value.replace(/[^\d]/g, "") || 0);
   const shipping = parseInt(document.getElementById("inputShipping")?.value.replace(/[^\d]/g, "") || 0);
   
-  // --- KALKULASI DISKON MEMBERSHIP OTOMATIS ---
-  const baseDiskon = subtotalKotor - totalDiskonItem; 
   const diskonMembershipPersen = parseFloat(document.getElementById("inputDiskonPersen")?.value || 0);
-  
   let diskonNominal = 0;
   
-  // Konversi otomatis dari Persen ke Nominal Rupiah
-  if (baseDiskon > 0) {
-    diskonNominal = Math.round(baseDiskon * (diskonMembershipPersen / 100));
+  if (subtotalNeto > 0) {
+    diskonNominal = Math.round(subtotalNeto * (diskonMembershipPersen / 100));
   }
 
-  // Inject hasil konversi otomatis ke field input "Diskon Membership (Rp)"
   const elDiskonNominal = document.getElementById("inputDiskon");
   if (elDiskonNominal) {
      elDiskonNominal.value = diskonNominal === 0 ? "0" : diskonNominal.toLocaleString("id-ID");
   }
 
   const totalDiskonSemua = totalDiskonItem + diskonNominal;
-
-  // --- KALKULASI GRAND TOTAL ---
   const pajak = Math.round(0 * (subtotalKotor - totalDiskonSemua)); 
-  const grandTotal = subtotalKotor - totalDiskonSemua + pajak + shipping + mp_admin;
+  
+  // Proteksi Grand Total Tidak Pernah Minus
+  let grandTotal = subtotalKotor - totalDiskonSemua + pajak + shipping + mp_admin;
+  if (grandTotal < 0) grandTotal = 0;
 
-  // --- INJECT KE UI RINGKASAN ---
   const elSubtotal = document.getElementById("subtotal");
   if(elSubtotal) elSubtotal.innerText = `${subtotalKotor.toLocaleString("id-ID")}`;
   
@@ -369,7 +351,6 @@ function recalculateTotal() {
   const elTotalBerat = document.getElementById("totalBerat");
   if(elTotalBerat) elTotalBerat.innerText = `${weight.toLocaleString("id-ID")} gr`;
 
-  // --- SINKRONISASI SISA TAGIHAN ---
   const uangMasuk = window.totalSudahDibayar || 0;
   let sisaTagihanDinamis = grandTotal - uangMasuk;
   if (sisaTagihanDinamis < 0) sisaTagihanDinamis = 0; 
@@ -380,6 +361,7 @@ function recalculateTotal() {
   if (elTotalInvoice) elTotalInvoice.innerText = `Rp ${grandTotal.toLocaleString("id-ID")}`;
   if (elSisaTagihan) elSisaTagihan.innerText = `Rp ${sisaTagihanDinamis.toLocaleString("id-ID")}`;
 }
+
 function setTodayDate() {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -416,23 +398,24 @@ async function submitInvoice() {
         "warning",
       );
 
-    let totalDiskonItem = 0; // Siapkan variabel penampung
+    let totalDiskonItem = 0; 
 
     const sales_detail = Array.from(rows).map((row) => {
       const select = row.querySelector(".itemNama");
+      const qty = parseInt(row.querySelector(".itemQty").value || 0);
+      const harga = parseInt(row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0);
       const diskon_produk = parseInt(row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0);
       
-      totalDiskonItem += diskon_produk; // Akumulasi total diskon
+      totalDiskonItem += diskon_produk; 
 
       return {
         product_id: parseInt(select.value),
-        quantity: parseInt(row.querySelector(".itemQty").value || 0),
-        sale_price: parseInt(row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0),
-        discount_price: diskon_produk,
+        quantity: qty,
+        sale_price: harga,
+        discount_price: diskon_produk // MENGIRIM NOMINAL DISKON, BUKAN NETO
       };
     });
 
-    // Ambil value dari form sebelum menyusun body
     const diskonMembershipPersen = parseFloat(document.getElementById("inputDiskonPersen").value || 0);
     const diskonMembershipNominal = parseInt(document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0);
 
@@ -445,24 +428,18 @@ async function submitInvoice() {
       salesman_id: parseInt(document.getElementById("salesman").value || 0),
       type_id: parseInt(document.getElementById("selectType").value || 0),
       
-      // DISKON DAFTAR ITEM
       discount_nominal: totalDiskonItem, 
-      
-      // PAJAK
       tax_percent: 0,
       tax: 0,
       
-      // DISKON MEMBERSHIP (SESUAI PAYLOAD)
       membership_discount_percent: diskonMembershipPersen,
-      membership_discount_nominal: diskonMembershipNominal, // Typo disengaja menyesuaikan API
+      membership_discount_nominal: diskonMembershipNominal, 
       
-      // BIAYA LAIN-LAIN
       courier_id: parseInt(document.getElementById("selectCourier").value || 0),
       courier_note: document.getElementById("courierNote").value,
       shipping: parseInt(document.getElementById("inputShipping").value.replace(/[^\d]/g, "") || 0),
-      "mp_admin": parseInt(document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0), // Memakai strip menyesuaikan API
+      mp_admin: parseInt(document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0),
       
-      // KETERANGAN
       catatan: document.getElementById("catatan").value,
       syaratketentuan: document.getElementById("syaratketentuan").value,
       termpayment: document.getElementById("termpayment").value,
@@ -509,23 +486,24 @@ async function updateInvoice() {
     if (!konfirmasi.isConfirmed) return;
 
     const rows = document.querySelectorAll("#tabelItem tr");
-    let totalDiskonItem = 0; // Siapkan variabel penampung
+    let totalDiskonItem = 0;
 
     const sales_detail = Array.from(rows).map((row) => {
       const select = row.querySelector(".itemNama");
+      const qty = parseInt(row.querySelector(".itemQty").value || 0);
+      const harga = parseInt(row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0);
       const diskon_produk = parseInt(row.querySelector(".itemDiskon")?.value.replace(/[^\d]/g, "") || 0);
       
-      totalDiskonItem += diskon_produk; // Akumulasi total diskon
+      totalDiskonItem += diskon_produk; 
 
       return {
         product_id: parseInt(select.value),
-        quantity: parseInt(row.querySelector(".itemQty").value || 0),
-        sale_price: parseInt(row.querySelector(".itemHarga").value.replace(/[^\d]/g, "") || 0),
-        discount_price: diskon_produk,
+        quantity: qty,
+        sale_price: harga,
+        discount_price: diskon_produk // MENGIRIM NOMINAL DISKON, BUKAN NETO
       };
     });
 
-    // Ambil value dari form sebelum menyusun body
     const diskonMembershipPersen = parseFloat(document.getElementById("inputDiskonPersen").value || 0);
     const diskonMembershipNominal = parseInt(document.getElementById("inputDiskon").value.replace(/[^\d]/g, "") || 0);
 
@@ -538,33 +516,27 @@ async function updateInvoice() {
       salesman_id: parseInt(document.getElementById("salesman").value || 0),
       type_id: parseInt(document.getElementById("selectType").value || 0),
       
-      // DISKON DAFTAR ITEM
       discount_nominal: totalDiskonItem, 
-      
-      // PAJAK
       tax_percent: 0,
       tax: 0,
       
-      // DISKON MEMBERSHIP (SESUAI PAYLOAD)
       membership_discount_percent: diskonMembershipPersen,
-      membership_discount_nominal: diskonMembershipNominal, // Typo disengaja menyesuaikan API
+      membership_discount_nominal: diskonMembershipNominal, 
       
-      // BIAYA LAIN-LAIN
       courier_id: parseInt(document.getElementById("selectCourier").value || 0),
       courier_note: document.getElementById("courierNote").value,
       shipping: parseInt(document.getElementById("inputShipping").value.replace(/[^\d]/g, "") || 0),
-      "mp_admin": parseInt(document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0), // Memakai strip menyesuaikan API
+      mp_admin: parseInt(document.getElementById("inputmp_admin").value.replace(/[^\d]/g, "") || 0), 
       
-      // KETERANGAN
       catatan: document.getElementById("catatan").value,
       syaratketentuan: document.getElementById("syaratketentuan").value,
       termpayment: document.getElementById("termpayment").value,
       
       sales_detail: sales_detail,
     };
-    // PERBAIKAN: Gunakan metode PUT dan pastikan ID faktur ada di URL
+    
     const res = await fetch(`${baseUrl}/update/sales_msi/${window.detail_id}`, {
-      method: "PUT", // Gunakan PUT untuk update
+      method: "PUT", 
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${API_TOKEN}`,
@@ -574,7 +546,6 @@ async function updateInvoice() {
 
     const json = await res.json();
 
-    // Sesuaikan pengecekan sukses (MSI biasanya menggunakan json.success)
     if (json.success || (json.data && json.data.success)) {
       Swal.fire("Sukses", "Data successfully updated", "success").then(() =>
         loadModuleContent("sales"),
@@ -587,13 +558,12 @@ async function updateInvoice() {
     Swal.fire("Error", "Terjadi kesalahan sistem saat update.", "error");
   }
 }
+
 async function loadCourierList() {
   try {
     const res = await fetch(`${baseUrl}/list/courier/${owner_id}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
-      },
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
     });
 
     const result = await res.json();
@@ -604,7 +574,7 @@ async function loadCourierList() {
 
     list.forEach((courier) => {
       const option = document.createElement("option");
-      option.value = courier.courier_id; // atau courier.id jika ingin ID
+      option.value = courier.courier_id; 
       option.textContent = courier.courier;
       courierSelect.appendChild(option);
     });
@@ -617,22 +587,18 @@ async function loadTypeOrder() {
   try {
     const res = await fetch(`${baseUrl}/list/sales_type/${owner_id}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
-      },
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
     });
 
     const result = await res.json();
     const list = result.listData || [];
-    console.log("sales type : ", list);
 
     const courierSelect = document.getElementById("selectType");
-    courierSelect.innerHTML =
-      '<option value="">-- Pilih Type Penjualan --</option>';
+    courierSelect.innerHTML = '<option value="">-- Pilih Type Penjualan --</option>';
 
     list.forEach((sales) => {
       const option = document.createElement("option");
-      option.value = sales.type_id; // atau courier.id jika ingin ID
+      option.value = sales.type_id; 
       option.textContent = sales.sales_type;
       courierSelect.appendChild(option);
     });
@@ -643,51 +609,42 @@ async function loadTypeOrder() {
 
 function handleCourierChange() {
   const selected = document.getElementById("selectCourier").value;
-  console.log("Kurir dipilih:", selected);
-  // kamu bisa lanjutkan fetch tarif berdasarkan berat dan kota jika perlu
 }
 
 function loadDetailSales(Id, Detail) {
   window.detail_id = Id;
   window.detail_desc = Detail;
 
-  // 1. Ganti ke endpoint MSI sesuai struktur terbaru
   fetch(`${baseUrl}/detail/sales_msi/${Id}`, {
     headers: { Authorization: `Bearer ${API_TOKEN}` },
   })
     .then((res) => res.json())
     .then(({ detail }) => {
-      // Pastikan loadProdukList selesai agar dropdown produk di tabel tidak kosong
       return loadProdukList(detail.customer_id).then(() => detail);
     })
     .then((detail) => {
-      // --- LOGIKA TOGGLE TOMBOL ---
       const btnSimpan = document.getElementById("btnSimpan");
       const btnUpdate = document.getElementById("btnUpdate");
 
       if (btnSimpan && btnUpdate) {
-        btnSimpan.classList.add("hidden"); // Sembunyikan tombol Simpan
-        btnUpdate.classList.remove("hidden"); // Tampilkan tombol Update
+        btnSimpan.classList.add("hidden"); 
+        btnUpdate.classList.remove("hidden"); 
       }
 
-      // --- PENGISIAN FORM IDENTITAS ---
       document.getElementById("formTitle").innerText = `UPDATE FAKTUR ${detail_desc}`;
       document.getElementById("tanggal").value = formatDateForInput(detail.date);
       document.getElementById("klien").value = detail.customer || "";
       document.getElementById("klien_id").value = detail.customer_id || "";
 
-      // Pengecekan aman untuk customerList jika belum termuat sepenuhnya
       const safeCustomerList = typeof customerList !== 'undefined' ? customerList : [];
       const mitraData = safeCustomerList.find((c) => c.pelanggan_id == detail.customer_id);
       const mem_id = detail.membership_id || (mitraData ? mitraData.membership_id : null);
       
-      // Setup Badge Membership
       let memConfig = null;
       if (mem_id == 1) memConfig = { text: 'FREE', classes: ['bg-gray-200', 'text-gray-600'] };
       else if (mem_id == 2) memConfig = { text: 'VIP', classes: ['bg-yellow-400', 'text-yellow-900'] };
       updateBadge('membershipBadge', memConfig);
 
-      // Setup Badge WhatsApp (Gunakan String() agar .trim() tidak error jika nilainya angka)
       const waNumber = detail.whatsapp || detail.phone;
       if (waNumber && String(waNumber).trim() !== '') {
           updateBadge('waBadge', memConfig);
@@ -695,28 +652,20 @@ function loadDetailSales(Id, Detail) {
           updateBadge('waBadge', null);
       }
 
-      // 2. Sinkronisasi Dropdown PIC
-      // Pastikan mitraData dan array customer_pic tersedia sebelum diproses
       if (mitraData && mitraData.customer_pic) {
         loadPicToSelect(mitraData.customer_pic, mitraData);
         document.getElementById("selectPic").value = detail.contact_id || "";
       }
 
-      // 3. Set Field Detail
       document.getElementById("contact_id").value = detail.contact_id || 0;
-      document.getElementById("no_hp").value = waNumber || ""; // Gunakan variabel yang sudah divalidasi
+      document.getElementById("no_hp").value = waNumber || ""; 
       document.getElementById("alamat").value = detail.address || "";
       document.getElementById("city").value = detail.region_name || "";
 
-      // 4. Set Field Finansial & Dropdown Lainnya
-// Tarik data persentase dan langsung masukkan ke field
-document.getElementById("inputDiskonPersen").value = detail.membership_discount_percent || 0;
-
-// Tarik data nominal dan format ke dalam bentuk ribuan
-document.getElementById("inputDiskon").value = (detail.membership_discount_nominal || 0).toLocaleString("id-ID");
-
-document.getElementById("inputShipping").value = (detail.shipping || 0).toLocaleString("id-ID");
-document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocaleString("id-ID");
+      document.getElementById("inputDiskonPersen").value = detail.membership_discount_percent || 0;
+      document.getElementById("inputDiskon").value = (detail.membership_discount_nominal || 0).toLocaleString("id-ID");
+      document.getElementById("inputShipping").value = (detail.shipping || 0).toLocaleString("id-ID");
+      document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocaleString("id-ID");
 
       document.getElementById("salesman").value = detail.salesman_id || "";
       document.getElementById("selectType").value = detail.type_id || "";
@@ -726,22 +675,34 @@ document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocale
       document.getElementById("syaratketentuan").value = detail.syaratketentuan || "";
       document.getElementById("termpayment").value = detail.termpayment || "";
 
-      // 5. Load Tabel Item Produk
       const tbody = document.getElementById("tabelItem");
       tbody.innerHTML = "";
       
-      // Pastikan sales_detail ada dan benar-benar sebuah Array
       if (detail.sales_detail && Array.isArray(detail.sales_detail)) {
         detail.sales_detail.forEach((item) => {
           tambahItem();
           const row = tbody.lastElementChild;
           if (row) {
             row.querySelector(".searchProduk").value = item.product || "";
-            row.querySelector(".itemNama").value = item.product_id || "";
             row.querySelector(".itemQty").value = item.qty || 1;
             row.querySelector(".itemHarga").value = (item.unit_price || 0).toLocaleString("id-ID");
             row.querySelector(".itemBerat").innerText = item.weight || 0;
-            row.querySelector(".itemDiskon").value = (item.discount_price || 0).toLocaleString("id-ID");
+            
+            // PROTEKSI ANTI 0 JADI HARGA
+            const diskonVal = item.discount_price !== undefined && item.discount_price !== null ? item.discount_price : 0; 
+            row.querySelector(".itemDiskon").value = diskonVal.toLocaleString("id-ID");
+
+            const select = row.querySelector(".itemNama");
+            
+            // PROTEKSI UPDATE KATEGORI (Agar tidak gagal/null jika barang lama sdh tidak ada di katalog)
+            const isOptionExist = Array.from(select.options).some(o => o.value == item.product_id);
+            if (!isOptionExist) {
+              const newOption = document.createElement("option");
+              newOption.value = item.product_id;
+              newOption.textContent = item.product;
+              select.appendChild(newOption);
+            }
+            select.value = item.product_id;
           }
         });
       }
@@ -750,7 +711,6 @@ document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocale
     })
     .catch((err) => {
       console.error("Gagal load detail MSI:", err);
-      // Memastikan SweetAlert muncul tepat di tengah dengan format standar
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -758,6 +718,7 @@ document.getElementById("inputmp_admin").value = (detail.mp_admin || 0).toLocale
       });
     });
 }
+
 function formatDateForInput(dateStr) {
   const [d, m, y] = dateStr.split("/");
   return `${y}-${m}-${d}`;
@@ -776,7 +737,6 @@ async function loadPaymentDetail(detail_id) {
     
     window.totalSudahDibayar = totalReceipt || 0;
 
-    // Inject Ringkasan Pembayaran
     document.getElementById("paymentTotalInvoice").innerText =
       `Rp ${totalInvoice.toLocaleString("id-ID")}`;
     document.getElementById("paymentTotalPaid").innerText =
@@ -784,7 +744,6 @@ async function loadPaymentDetail(detail_id) {
     document.getElementById("paymentRemaining").innerText =
       `Rp ${totalRemainingPayment.toLocaleString("id-ID")}`;
 
-    // Inject List Pembayaran
     const wrapper = document.getElementById("listPembayaran");
     wrapper.innerHTML = "";
 
@@ -818,16 +777,13 @@ async function printInvoice(invoice_id) {
   try {
     const response = await fetch(`${baseUrl}/detail/sales/${invoice_id}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
-      },
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
     });
 
     const result = await response.json();
     const data = result?.detail;
     if (!data) throw new Error("Data paket tidak ditemukan");
 
-    // Tampilkan pilihan aksi ke user
     const { isConfirmed, dismiss } = await Swal.fire({
       title: "Cetak Faktur Penjualan",
       text: "Pilih metode pencetakan:",
@@ -840,7 +796,6 @@ async function printInvoice(invoice_id) {
 
     if (isConfirmed) {
       const url = `print_faktur.html?id=${invoice_id}`;
-      // === Download PDF (via packing_print.html di iframe) ===
       Swal.fire({
         title: "Menyiapkan PDF...",
         html: "File akan diunduh otomatis.",
@@ -858,24 +813,15 @@ async function printInvoice(invoice_id) {
 
           setTimeout(() => {
             Swal.close();
-            Swal.fire(
-              "Berhasil",
-              "Faktur Penjualan berhasil diunduh.",
-              "success",
-            );
+            Swal.fire("Berhasil", "Faktur Penjualan berhasil diunduh.", "success");
           }, 3000);
         },
       });
     } else if (dismiss === Swal.DismissReason.cancel) {
-      // === Print Langsung (open tab) ===
       window.open(`print_faktur.html?id=${invoice_id}`, "_blank");
     }
   } catch (error) {
-    Swal.fire({
-      title: "Gagal",
-      text: error.message,
-      icon: "error",
-    });
+    Swal.fire({ title: "Gagal", text: error.message, icon: "error" });
   }
 }
 
@@ -893,22 +839,20 @@ async function sendWhatsAppInvoice() {
       no_inv,
       date,
       sales_detail,
-      discount_nominal,       // Diskon Item
-      discount_membership,    // Diskon Membership (Tambahkan variabel ini dari destructuring)
+      discount_nominal,
+      membership_discount_nominal, 
       shipping,
       terms,
       term_payment,
       notes,
     } = detail;
 
-    // Cari nomor WA dari customerList
     const klien = customerList.find(
       (c) => c.pelanggan_id == detail.customer_id,
     );
     const wa = klien?.whatsapp?.replace(/\D/g, "").replace(/^0/, "62");
     if (!wa) return alert("❌ Nomor WhatsApp klien tidak ditemukan.");
 
-    // Format daftar produk
     let produkList = "";
     let subtotal = 0;
     sales_detail.forEach((item, i) => {
@@ -919,18 +863,15 @@ async function sendWhatsAppInvoice() {
       produkList += `${i + 1}. ${item.product} x${qty} @Rp${harga.toLocaleString("id-ID")} = Rp${total.toLocaleString("id-ID")}\n`;
     });
 
-   const pajak = Math.round(subtotal * 0);
-    // Hitungan total dikurangi kedua jenis diskon
-    const total = subtotal - (discount_nominal || 0) - (discount_membership || 0) + pajak + shipping;
+    const pajak = Math.round(subtotal * 0);
+    const total = subtotal - (discount_nominal || 0) - (membership_discount_nominal || 0) + pajak + shipping;
 
-    // Susun pesan WA
     let pesan = `Hallo ${customer},\n\nBerikut tagihan untuk invoice *${no_inv}* (tgl: ${date}):\n\n`;
     pesan += produkList + "\n";
     pesan += `Subtotal: Rp${subtotal.toLocaleString("id-ID")}\n`;
     
-    // Tampilkan rincian diskon jika ada isinya
     if (discount_nominal) pesan += `Diskon Item: -Rp${discount_nominal.toLocaleString("id-ID")}\n`;
-    if (discount_membership) pesan += `Diskon Membership: -Rp${discount_membership.toLocaleString("id-ID")}\n`;
+    if (membership_discount_nominal) pesan += `Diskon Membership: -Rp${membership_discount_nominal.toLocaleString("id-ID")}\n`;
     
     pesan += `Pajak (0%): Rp${pajak.toLocaleString("id-ID")}\n`;
     if (shipping) pesan += `Ongkir: Rp${shipping.toLocaleString("id-ID")}\n`;
@@ -940,7 +881,6 @@ async function sendWhatsAppInvoice() {
     if (term_payment) pesan += `💰 *Term of Payment:*\n${term_payment}\n\n`;
     pesan += `Silakan lakukan pembayaran sesuai ketentuan. Terima kasih 🙏`;
 
-    // Kirim via WA
     const url = `https://wa.me/${wa}?text=${encodeURIComponent(pesan)}`;
     window.open(url, "_blank");
   } catch (err) {
